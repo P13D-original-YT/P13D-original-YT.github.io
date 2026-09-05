@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Proyecto Web</title>
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="logo">Mi Proyecto</div>
+            <ul class="nav-links">
+                <li><a href="#inicio">Inicio</a></li>
+                <li><a href="#sobre">Sobre</a></li>
+                <li><a href="#contacto">Contacto</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section id="inicio" class="hero">
+            <div class="hero-content">
+                <h1>¡Bienvenido!</h1>
+                <p>Esta es una página web moderna y responsiva</p>
+                <button class="btn" id="btnClick">Haz clic aquí</button>
+            </div>
+        </section>
+
+        <section id="sobre" class="features">
+            <h2>Características</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <h3>Diseño Responsivo</h3>
+                    <p>Se adapta a cualquier dispositivo</p>
+                </div>
+                <div class="feature-card">
+                    <h3>JavaScript Dinámico</h3>
+                    <p>Interactividad en tiempo real</p>
+                </div>
+                <div class="feature-card">
+                    <h3>CSS Moderno</h3>
+                    <p>Estilos limpios y profesionales</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="contacto" class="contact">
+            <h2>Contacto</h2>
+            <form id="contactForm">
+                <div class="form-group">
+                    <label for="nombre">Nombre:</label>
+                    <input type="text" id="nombre" name="nombre" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="mensaje">Mensaje:</label>
+                    <textarea id="mensaje" name="mensaje" rows="5" required></textarea>
+                </div>
+                <button type="submit" class="btn">Enviar</button>
+            </form>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Mi Proyecto. Todos los derechos reservados.</p>
+    </footer>
+
+    <script src="index.js"></script>
+</body>
+</html>
