@@ -122,4 +122,142 @@ h2::before { content: ''; width: 28px; height: 2px; background: var(--red); }
 }
 .fact {
   background: var(--surface); border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 12px; padding: 14px 18px;
+}
+.fact-label {
+  font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--red);
+}
+.fact-value { font-size: 15px; margin-top: 2px; word-break: break-word; }
+
+/* Chips */
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+  font-size: 13px; padding: 6px 16px; border-radius: 40px;
+  background: var(--surface); border: 1px solid var(--border); color: #ccc;
+  transition: border-color .3s, color .3s;
+}
+.chip:hover { border-color: var(--red); color: #fff; }
+
+/* Línea de tiempo */
+.timeline { border-left: 1px solid var(--border); margin-left: 6px; }
+.t-item { position: relative; padding: 0 0 26px 26px; }
+.t-item:last-child { padding-bottom: 0; }
+.t-item::before {
+  content: ''; position: absolute; left: -5px; top: 8px;
+  width: 9px; height: 9px; border-radius: 50%;
+  background: var(--red); box-shadow: 0 0 12px var(--red-glow);
+}
+.t-date { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
+.t-title { font-size: 17px; font-weight: 500; margin-top: 2px; }
+.t-desc { font-size: 14px; font-weight: 300; color: #aaa; margin-top: 4px; }
+
+/* Enlaces */
+.links { display: flex; flex-wrap: wrap; gap: 10px; }
+.link {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: 13px; letter-spacing: 1px; text-decoration: none; color: var(--text);
+  padding: 10px 20px; border-radius: 40px;
+  border: 1px solid var(--border); background: var(--surface);
+  transition: border-color .3s, background .3s, box-shadow .3s;
+}
+.link:hover, .link:focus-visible {
+  border-color: var(--red); background: rgba(232,0,45,0.1);
+  box-shadow: 0 0 24px var(--red-glow); outline: none;
+}
+
+footer {
+  text-align: center; font-size: 12px; color: #555;
+  border-top: 1px solid var(--border); padding-top: 24px; margin-top: 56px;
+}
+
+@media (max-width: 600px) {
+  .profile { gap: 22px; margin: 36px 0 40px; }
+  .avatar { width: 120px; height: 120px; font-size: 48px; }
+}
+</style>
+</head>
+<body>
+
+<div class="bg-orb bg-orb-1"></div>
+<div class="bg-orb bg-orb-2"></div>
+
+<main class="wrapper">
+
+  <a href="index.html" class="back">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    Inicio
+  </a>
+
+  <!-- ═════════ PERFIL ═════════ -->
+  <header class="profile">
+    <!-- Para usar foto: <div class="avatar"><img src="portadas/yo.jpg" alt="Mi foto"></div> -->
+    <div class="avatar">TU</div>
+    <div>
+      <div class="eyebrow">Blog</div>
+      <h1 class="name">TU <em>NOMBRE</em></h1>
+      <p class="tagline">Tu frase o profesión aquí</p>
+    </div>
+  </header>
+
+  <!-- ═════════ HISTORIA ═════════ -->
+  <section class="about">
+    <h2>Quién soy</h2>
+    <p>Escribe aquí un párrafo sobre ti: de dónde eres, qué te apasiona y por qué creaste este sitio.</p>
+    <p>Puedes añadir más párrafos copiando esta línea. Cada &lt;p&gt; es un párrafo nuevo.</p>
+  </section>
+
+  <!-- ═════════ DATOS ═════════ -->
+  <section>
+    <h2>Datos</h2>
+    <div class="facts">
+      <div class="fact"><div class="fact-label">Ubicación</div><div class="fact-value">Ciudad, País</div></div>
+      <div class="fact"><div class="fact-label">Ocupación</div><div class="fact-value">Lo que haces</div></div>
+      <div class="fact"><div class="fact-label">Correo</div><div class="fact-value">tu@correo.com</div></div>
+      <div class="fact"><div class="fact-label">Idiomas</div><div class="fact-value">Español, Inglés</div></div>
+    </div>
+  </section>
+
+  <!-- ═════════ INTERESES ═════════ -->
+  <section>
+    <h2>Intereses</h2>
+    <div class="chips">
+      <span class="chip">Cine</span>
+      <span class="chip">Música</span>
+      <span class="chip">Viajes</span>
+      <span class="chip">Tecnología</span>
+    </div>
+  </section>
+
+  <!-- ═════════ TRAYECTORIA ═════════ -->
+  <section>
+    <h2>Trayectoria</h2>
+    <div class="timeline">
+      <div class="t-item">
+        <div class="t-date">2024 – Actualidad</div>
+        <div class="t-title">Título o logro</div>
+        <div class="t-desc">Breve descripción de lo que hiciste o estás haciendo.</div>
+      </div>
+      <div class="t-item">
+        <div class="t-date">2020 – 2024</div>
+        <div class="t-title">Otro hito</div>
+        <div class="t-desc">Estudios, trabajo, proyecto… lo que quieras contar.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════ ENLACES ═════════ -->
+  <section>
+    <h2>Encuéntrame</h2>
+    <div class="links">
+      <a class="link" href="https://github.com/tu-usuario" target="_blank" rel="noopener">GitHub</a>
+      <a class="link" href="mailto:tu@correo.com">Correo</a>
+      <a class="link" href="#" target="_blank" rel="noopener">Instagram</a>
+    </div>
+  </section>
+
+  <footer>CSTG Entertainment · Blog</footer>
+
+</main>
+
+</body>
+</html>
