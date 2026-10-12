@@ -1,75 +1,27 @@
-// Funcionalidad del botón principal
-const btnClick = document.getElementById('btnClick');
-btnClick.addEventListener('click', function() {
-    alert('¡Gracias por hacer clic! Este es un ejemplo de interactividad con JavaScript.');
-    console.log('Botón clickeado en:', new Date());
+// Paralaje suave de los orbes al mover el ratón
+document.addEventListener('mousemove', (e) => {
+  const cx = window.innerWidth / 2;
+  const cy = window.innerHeight / 2;
+  const dx = (e.clientX - cx) / cx;
+  const dy = (e.clientY - cy) / cy;
+
+  document.querySelectorAll('.bg-orb').forEach((orb, i) => {
+    const factor = i === 0 ? 18 : 12;
+    orb.style.transform = `translate(${dx * factor}px, ${dy * factor}px)`;
+  });
 });
 
-// Manejo del formulario de contacto
-const contactForm = document.getElementById('contactForm');
-contactForm.addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    // Obtener valores del formulario
-    const nombre = document.getElementById('nombre').value;
-    const email = document.getElementById('email').value;
-    const mensaje = document.getElementById('mensaje').value;
-    
-    // Validar que no estén vacíos
-    if (nombre.trim() === '' || email.trim() === '' || mensaje.trim() === '') {
-        alert('Por favor, completa todos los campos');
-        return;
-    }
-    
-    // Mostrar confirmación
-    console.log('Formulario enviado:');
-    console.log('Nombre:', nombre);
-    console.log('Email:', email);
-    console.log('Mensaje:', mensaje);
-    
-    alert('¡Gracias ' + nombre + '! Tu mensaje ha sido recibido. Nos pondremos en contacto pronto.');
-    
-    // Limpiar formulario
-    contactForm.reset();
+// Efecto de inclinación 3D en las tarjetas
+document.querySelectorAll('.card').forEach((card) => {
+  card.addEventListener('mousemove', (e) => {
+    const rect = card.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    card.style.transform =
+      `translateY(-10px) scale(1.02) rotateY(${x * 8}deg) rotateX(${-y * 6}deg)`;
+  });
+
+  card.addEventListener('mouseleave', () => {
+    card.style.transform = '';
+  });
 });
-
-// Efecto de navegación suave
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        const targetId = this.getAttribute('href');
-        const targetElement = document.querySelector(targetId);
-        
-        if (targetElement) {
-            targetElement.scrollIntoView({
-                behavior: 'smooth',
-                block: 'start'
-            });
-        }
-    });
-});
-
-// Cambiar color del logo al hacer scroll
-window.addEventListener('scroll', function() {
-    const navbar = document.querySelector('.navbar');
-    if (window.scrollY > 50) {
-        navbar.style.boxShadow = '0 4px 8px rgba(0,0,0,0.2)';
-    } else {
-        navbar.style.boxShadow = '0 2px 5px rgba(0,0,0,0.1)';
-    }
-});
-
-// Evento de carga de la página
-window.addEventListener('load', function() {
-    console.log('¡Página cargada correctamente!');
-    console.log('Bienvenido a Mi Proyecto Web');
-});
-
-// Función para logging de eventos
-function logEvent(eventName, details) {
-    const timestamp = new Date().toLocaleString('es-ES');
-    console.log(`[${timestamp}] ${eventName}:`, details);
-}
-
-// Inicialización
-logEvent('Inicialización', 'Página lista para interactuar');
