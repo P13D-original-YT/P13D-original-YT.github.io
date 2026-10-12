@@ -1,74 +1,114 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mi Proyecto Web</title>
-    <link rel="stylesheet" href="index.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="CSTG Entertainment · Centro multimedia: películas, música y turismo.">
+<meta name="theme-color" content="#050505">
+<title>CSTG Entertainment</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cinzel:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="index.css">
 </head>
 <body>
-    <header>
-        <nav class="navbar">
-            <div class="logo">Mi Proyecto</div>
-            <ul class="nav-links">
-                <li><a href="#inicio">Inicio</a></li>
-                <li><a href="#sobre">Sobre</a></li>
-                <li><a href="#contacto">Contacto</a></li>
-            </ul>
-        </nav>
-    </header>
 
-    <main>
-        <section id="inicio" class="hero">
-            <div class="hero-content">
-                <h1>¡Bienvenido!</h1>
-                <p>Esta es una página web moderna y responsiva</p>
-                <button class="btn" id="btnClick">Haz clic aquí</button>
-            </div>
-        </section>
+<div class="bg-orb bg-orb-1"></div>
+<div class="bg-orb bg-orb-2"></div>
+<div class="scanline"></div>
 
-        <section id="sobre" class="features">
-            <h2>Características</h2>
-            <div class="features-grid">
-                <div class="feature-card">
-                    <h3>Diseño Responsivo</h3>
-                    <p>Se adapta a cualquier dispositivo</p>
-                </div>
-                <div class="feature-card">
-                    <h3>JavaScript Dinámico</h3>
-                    <p>Interactividad en tiempo real</p>
-                </div>
-                <div class="feature-card">
-                    <h3>CSS Moderno</h3>
-                    <p>Estilos limpios y profesionales</p>
-                </div>
-            </div>
-        </section>
+<div class="wrapper">
 
-        <section id="contacto" class="contact">
-            <h2>Contacto</h2>
-            <form id="contactForm">
-                <div class="form-group">
-                    <label for="nombre">Nombre:</label>
-                    <input type="text" id="nombre" name="nombre" required>
-                </div>
-                <div class="form-group">
-                    <label for="email">Email:</label>
-                    <input type="email" id="email" name="email" required>
-                </div>
-                <div class="form-group">
-                    <label for="mensaje">Mensaje:</label>
-                    <textarea id="mensaje" name="mensaje" rows="5" required></textarea>
-                </div>
-                <button type="submit" class="btn">Enviar</button>
-            </form>
-        </section>
-    </main>
+  <header class="reveal" style="animation-delay:0.1s">
+    <div class="logo-line">
+      <div class="logo-bar"></div>
+      <span class="logo-tag">Centro Multimedia</span>
+      <div class="logo-bar"></div>
+    </div>
+    <div class="logo-main">CS<em>T</em>G</div>
+    <div class="logo-sub">Entertainment · Películas · Música · Turismo</div>
+  </header>
 
-    <footer>
-        <p>&copy; 2024 Mi Proyecto. Todos los derechos reservados.</p>
-    </footer>
+  <nav class="menu-grid" aria-label="Menú principal">
 
-    <script src="index.js"></script>
+    <!-- PELÍCULAS -->
+    <a class="card reveal" href="CSTGPELIS/index.html" style="animation-delay:0.25s" aria-label="Películas y Series">
+      <div class="card-bg" style="background-image:url('portadas/pelis.png')"></div>
+      <div class="card-placeholder" aria-hidden="true">
+        <svg width="120" height="120" viewBox="0 0 24 24" fill="white"><rect x="2" y="2" width="20" height="20" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+      </div>
+      <div class="card-num">01</div>
+      <div class="card-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8">
+          <rect x="2" y="2" width="20" height="20" rx="3"/>
+          <path d="M7 2v20M17 2v20M2 12h20M2 7h5M17 7h5M2 17h5M17 17h5"/>
+        </svg>
+      </div>
+      <div class="card-body">
+        <div class="card-cat">Sección 01</div>
+        <div class="card-title">Películas<br>& Series</div>
+        <div class="card-hint">Explorar catálogo →</div>
+      </div>
+      <div class="card-bar"></div>
+    </a>
+
+    <!-- MÚSICA -->
+    <a class="card reveal" href="CSTGMUSIC/index.html" style="animation-delay:0.38s" aria-label="Música y Soundtrack">
+      <div class="card-bg" style="background-image:url('portadas/musica.png')"></div>
+      <div class="card-placeholder" aria-hidden="true">
+        <svg width="120" height="120" viewBox="0 0 24 24" fill="white"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+      </div>
+      <div class="card-num">02</div>
+      <div class="card-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8">
+          <path d="M9 18V5l12-2v13"/>
+          <circle cx="6" cy="18" r="3"/>
+          <circle cx="18" cy="16" r="3"/>
+        </svg>
+      </div>
+      <div class="card-body">
+        <div class="card-cat">Sección 02</div>
+        <div class="card-title">Música &<br>Soundtrack</div>
+        <div class="card-hint">Escuchar ahora →</div>
+      </div>
+      <div class="card-bar"></div>
+    </a>
+
+    <!-- TURISMO -->
+    <a class="card reveal" href="Otros/Informacion turistia/menu.html" style="animation-delay:0.51s" aria-label="Información Turística">
+      <div class="card-bg" style="background-image:url('portadas/info.png')"></div>
+      <div class="card-placeholder" aria-hidden="true">
+        <svg width="120" height="120" viewBox="0 0 24 24" fill="white"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+      </div>
+      <div class="card-num">03</div>
+      <div class="card-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8">
+          <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+          <circle cx="12" cy="9" r="2.5"/>
+        </svg>
+      </div>
+      <div class="card-body">
+        <div class="card-cat">Sección 03</div>
+        <div class="card-title">Turismo &<br>Destinos</div>
+        <div class="card-hint">Ver información →</div>
+      </div>
+      <div class="card-bar"></div>
+    </a>
+
+  </nav>
+
+  <footer class="reveal" style="animation-delay:0.62s">
+    <!-- TODO: cambia "#" por la dirección a la que debe volver (ej. https://tu-usuario.github.io/) -->
+    <a href="#" class="footer-back">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M19 12H5M12 5l-7 7 7 7"/>
+      </svg>
+      Volver al inicio
+    </a>
+  </footer>
+
+</div>
+
+<script src="index.js" defer></script>
 </body>
 </html>
