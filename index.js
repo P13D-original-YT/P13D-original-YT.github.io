@@ -1,27 +1,16 @@
-// Paralaje suave de los orbes al mover el ratón
-document.addEventListener('mousemove', (e) => {
-  const cx = window.innerWidth / 2;
-  const cy = window.innerHeight / 2;
-  const dx = (e.clientX - cx) / cx;
-  const dy = (e.clientY - cy) / cy;
-
-  document.querySelectorAll('.bg-orb').forEach((orb, i) => {
-    const factor = i === 0 ? 18 : 12;
-    orb.style.transform = `translate(${dx * factor}px, ${dy * factor}px)`;
+// Aparición suave al hacer scroll
+const io = new IntersectionObserver((entries) => {
+  entries.forEach((e) => {
+    if (e.isIntersecting) { e.target.classList.add('in-view'); io.unobserve(e.target); }
   });
-});
+}, { threshold: 0.15 });
+document.querySelectorAll('.rv').forEach((el) => io.observe(el));
 
-// Efecto de inclinación 3D en las tarjetas
-document.querySelectorAll('.card').forEach((card) => {
-  card.addEventListener('mousemove', (e) => {
-    const rect = card.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width - 0.5;
-    const y = (e.clientY - rect.top) / rect.height - 0.5;
-    card.style.transform =
-      `translateY(-10px) scale(1.02) rotateY(${x * 8}deg) rotateX(${-y * 6}deg)`;
-  });
-
-  card.addEventListener('mouseleave', () => {
-    card.style.transform = '';
-  });
-});
+// Marca en el menú la sección visible
+const links = document.querySelectorAll('nav a[href^="#"]');
+const secciones = [...links].map((a) => document.querySelector(a.getAttribute('href'))).filter(Boolean);
+window.addEventListener('scroll', () => {
+  let actual = secciones[0];
+  secciones.forEach((s) => { if (s.getBoundingClientRect().top < 140) actual = s; });
+  links.forEach((a) => a.classList.toggle('on', a.getAttribute('href') === '#' + actual.id));
+}, { passive: true });
