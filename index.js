@@ -117,6 +117,8 @@ const reducirMovimiento = window.matchMedia('(prefers-reduced-motion: reduce)').
       ['err', '[!!] ping 404 ignorado'],
       ['wrn', '[..] buffer 64 TB'],
       ['ok',  '[OK] usuario: GUEST'],
+      ['wrn',  '[..] Cargando estupides'],
+      ['err', '[!!] No se pudo cargar estupides'],
       ['wrn', '[..] decodificando señal']
     ];
     const add = () => {
