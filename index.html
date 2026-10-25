@@ -4,11 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="description" content="CSTG Entertainment · Centro multimedia: películas, música y turismo.">
-<meta name="theme-color" content="#050505">
+<meta name="theme-color" content="#07070c">
 <title>CSTG Entertainment</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cinzel:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="index.css">
 </head>
 <body>
@@ -25,7 +25,7 @@
       <span class="logo-tag">Centro Multimedia</span>
       <div class="logo-bar"></div>
     </div>
-    <div class="logo-main">CS<em>T</em>G</div>
+    <div class="logo-main" data-text="CSTG">CS<em>T</em>G</div>
     <div class="logo-sub">Entertainment · Películas · Música · Turismo</div>
   </header>
 
@@ -95,32 +95,11 @@
       <div class="card-bar"></div>
     </a>
 
-    <!-- Blog -->
-    <a class="card reveal" href="Rutas/Blog/blog.html" style="animation-delay:0.51s" aria-label="Información Turística">
-      <div class="card-bg" style="background-image:url('portadas/info.png')"></div>
-      <div class="card-placeholder" aria-hidden="true">
-        <svg width="120" height="120" viewBox="0 0 24 24" fill="white"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
-      </div>
-      <div class="card-num">04</div>
-      <div class="card-icon" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8">
-          <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
-          <circle cx="12" cy="9" r="2.5"/>
-        </svg>
-      </div>
-      <div class="card-body">
-        <div class="card-cat">Sección 04</div>
-        <div class="card-title">Datos &<br>Destinos</div>
-        <div class="card-hint">Ver información →</div>
-      </div>
-      <div class="card-bar"></div>
-    </a>
-
   </nav>
 
   <footer class="reveal" style="animation-delay:0.62s">
-    <!-- TODO: cambia "#" por la dirección a la que debe volver (ej. https://tu-usuario.github.io/) -->
-    <a href="#" class="footer-back">
+    <!-- Ruta de carpeta: "../index.html" sube un nivel. Cámbiala si tu inicio está en otra carpeta -->
+    <a href="../index.html" class="footer-back">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M19 12H5M12 5l-7 7 7 7"/>
       </svg>
@@ -128,6 +107,16 @@
     </a>
   </footer>
 
+</div>
+
+<!-- Botones para desplazarse -->
+<div class="scroll-nav">
+  <button class="scroll-btn hidden" id="btn-up" type="button" aria-label="Subir">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 15l-6-6-6 6"/></svg>
+  </button>
+  <button class="scroll-btn hidden" id="btn-down" type="button" aria-label="Bajar">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+  </button>
 </div>
 
 <script src="index.js" defer></script>
