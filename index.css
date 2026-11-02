@@ -310,10 +310,14 @@ body::before {
 /* ── Grid de tarjetas ── */
 .menu-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(6, 1fr);   /* cada tarjeta ocupa 2 columnas → 3 por fila */
   gap: 24px;
   width: 100%;
 }
+.slot { grid-column: span 2; }
+/* Centra la última fila cuando queda incompleta */
+.slot:last-child:nth-child(3n + 1) { grid-column: 3 / span 2; }
+.slot:nth-last-child(2):nth-child(3n + 1) { grid-column: 2 / span 2; }
 
 /* El "slot" lleva el brillo; la tarjeta lleva el recorte */
 .slot {
@@ -577,6 +581,7 @@ html.boot #boot { display: flex; }
   .tb-btns { display: none; }
   .statusbar { padding: 8px 22px 12px; gap: 14px; font-size: 10px; }
   .menu-grid { grid-template-columns: 1fr; gap: 16px; }
+  .menu-grid .slot { grid-column: auto !important; }
   .card { aspect-ratio: 16 / 9; }
   .logo-main { letter-spacing: 5px; }
   .hud-frame { inset: 8px; }
