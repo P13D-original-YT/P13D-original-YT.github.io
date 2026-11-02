@@ -413,6 +413,7 @@ button { font-family: inherit; color: inherit; }
               <button type="button" data-cat="todo" class="active">Todo <span class="n" data-n="todo"></span></button>
               <button type="button" data-cat="juegos">Juegos <span class="n" data-n="juegos"></span></button>
               <button type="button" data-cat="programas">Programas <span class="n" data-n="programas"></span></button>
+              <button type="button" data-cat="programas">ISOs <span class="n" data-n="programas"></span></button>
               <button type="button" disabled>Próximamente</button>
             </nav>
 
@@ -533,12 +534,23 @@ const PROGRAMAS = [
     icono: '',
     imagenes: [],
     descargar: ''
+  },
+    {
+    nombre: 'Juego de iso 1',
+    categoria: 'ISOs',
+    descripcion: 'Perfecto para pasar el rato.',
+    detalle: '',
+    calificacion: 3,
+    icono: '',
+    imagenes: [],
+    descargar: ''
   }
 ];
 
 const CATEGORIAS = {
   juegos:    { etiqueta: 'Juegos',    color: '#ff003c' },
-  programas: { etiqueta: 'Programas', color: '#00f0ff' }
+  programas: { etiqueta: 'Programas', color: '#00f0ff' },
+  ISOs:{etiqueta: 'ISOs', color: '#00f0ff' }
 };
 const COLOR_DEFECTO = '#fcee0a';
 
