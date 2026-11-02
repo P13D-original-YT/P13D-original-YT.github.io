@@ -411,6 +411,7 @@ button { font-family: inherit; color: inherit; }
             <nav class="side" id="side" aria-label="Secciones">
               <div class="side-label">// SECCIONES</div>
               <button type="button" data-cat="todo" class="active">Todo <span class="n" data-n="todo"></span></button>
+              <button type="button" data-cat="pagina">Página web <span class="n" data-n="pagina"></span></button>
               <button type="button" data-cat="juegos">Juegos <span class="n" data-n="juegos"></span></button>
               <button type="button" data-cat="programas">Programas <span class="n" data-n="programas"></span></button>
               <button type="button" data-cat="isos">ISOs <span class="n" data-n="isos"></span></button>
@@ -486,7 +487,7 @@ button { font-family: inherit; color: inherit; }
    y cambia los datos. Todo lo demás se actualiza solo.
 
    nombre        → título que se ve en la tarjeta
-   categoria     → 'juegos' o 'programas' o 'isos'
+   categoria     → 'juegos' o 'programas' o 'isos' o 'pagina'
    descripcion   → texto corto de la tarjeta
    detalle       → texto largo de la ventana (opcional)
    calificacion  → número del 0 al 10
@@ -565,12 +566,22 @@ const PROGRAMAS = [
     imagenes: [],
     descargar: ''
   },
-    {
+  {
     nombre: 'TomexOs',
     categoria: 'isos',
     descripcion: 'proximamente',
     detalle: '',
     calificacion: 0,
+    icono: '',
+    imagenes: [],
+    descargar: ''
+  },
+  {
+    nombre: 'Optiproyes',
+    categoria: 'pagina',
+    descripcion: 'proximamente',
+    detalle: '',
+    calificacion: 10,
     icono: '',
     imagenes: [],
     descargar: ''
@@ -580,7 +591,8 @@ const PROGRAMAS = [
 const CATEGORIAS = {
   juegos:    { etiqueta: 'Juegos',    color: '#ff003c' },
   programas: { etiqueta: 'Programas', color: '#00f0ff' },
-  isos:{etiqueta: 'ISO', color: '#fcee0a' }
+  isos:{etiqueta: 'ISO', color: '#fcee0a' },
+  pagina:{etiqueta: 'Páginas WEBs', color: '#9D00FF'}
 };
 const COLOR_DEFECTO = '#fcee0a';
 
