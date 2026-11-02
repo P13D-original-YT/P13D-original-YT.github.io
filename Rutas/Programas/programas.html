@@ -486,7 +486,7 @@ button { font-family: inherit; color: inherit; }
    y cambia los datos. Todo lo demás se actualiza solo.
 
    nombre        → título que se ve en la tarjeta
-   categoria     → 'juegos' o 'programas'
+   categoria     → 'juegos' o 'programas' o 'ISO'
    descripcion   → texto corto de la tarjeta
    detalle       → texto largo de la ventana (opcional)
    calificacion  → número del 0 al 10
@@ -537,7 +537,7 @@ const PROGRAMAS = [
   },
     {
     nombre: 'Juego de iso 1',
-    categoria: 'ISOs',
+    categoria: 'ISO',
     descripcion: 'Perfecto para pasar el rato.',
     detalle: '',
     calificacion: 3,
@@ -550,7 +550,7 @@ const PROGRAMAS = [
 const CATEGORIAS = {
   juegos:    { etiqueta: 'Juegos',    color: '#ff003c' },
   programas: { etiqueta: 'Programas', color: '#00f0ff' },
-  ISOs:{etiqueta: 'ISOs', color: '#00f0ff' }
+  ISO:{etiqueta: 'ISO', color: '#4b0082' }
 };
 const COLOR_DEFECTO = '#fcee0a';
 
