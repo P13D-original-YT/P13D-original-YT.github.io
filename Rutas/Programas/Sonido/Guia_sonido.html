@@ -928,7 +928,22 @@ const B = MODO_REMOTO ? Remoto : Local;
 let datos = datosPorDefecto();
 let sesion = null;
 let activa = 'equipos';
-let servidorCaido = false;
+let servidorCaido = false;     // no se pudo ni cargar el servicio
+let datosCaidos = false;      // el servicio carga, pero fallaron los datos
+let detalleError = '';        // explicación para mostrar en pantalla
+
+/* Traduce los errores técnicos a una pista que se pueda seguir */
+function explicarError(e) {
+  const m = String((e && e.message) || e || '');
+  const c = String((e && e.code) || '');
+  if (c === '42501' || /permission denied/i.test(m)) return 'Faltan permisos (GRANT) en las tablas. Solución: ejecuta de nuevo TODO el archivo sonido-supabase.sql en el SQL Editor de Supabase. [' + (m || c) + ']';
+  if (c === 'PGRST205' || c === '42P01' || /could not find the table|does not exist|schema cache/i.test(m)) return 'Las tablas no existen o no están expuestas a la API. Solución: ejecuta TODO el archivo sonido-supabase.sql en el SQL Editor de Supabase. [' + m + ']';
+  if (c === 'PGRST116' || /0 rows|no rows/i.test(m)) return 'La tabla "guia" está vacía. Ejecuta de nuevo sonido-supabase.sql (crea la fila inicial). [' + m + ']';
+  if (/invalid api key|apikey|jwt/i.test(m)) return 'La clave del proyecto no es válida. Revisa CONFIG_SERVIDOR. [' + m + ']';
+  if (/failed to fetch|networkerror|load failed/i.test(m)) return 'No hay conexión con Supabase. Revisa internet, que el proyecto no esté pausado y desactiva bloqueadores de anuncios para esta página. [' + m + ']';
+  if (/no se pudo cargar el servicio/i.test(m)) return 'No se pudo cargar la librería de Supabase (internet o bloqueador de anuncios).';
+  return m || 'Error desconocido';
+}
 
 const puedeEditar = () => !!sesion && (sesion.rol === 'editor' || sesion.rol === 'admin');
 const esAdmin = () => !!sesion && sesion.rol === 'admin';
@@ -936,6 +951,7 @@ const esAdmin = () => !!sesion && sesion.rol === 'admin';
 /* Guardar: solo con permiso. Si falla, se deshace el cambio. */
 async function guardar() {
   if (!puedeEditar()) { toast('SIN PERMISO PARA EDITAR'); return false; }
+  if (MODO_REMOTO && (servidorCaido || datosCaidos)) { toast('NO SE CARGARON LOS DATOS DEL SERVIDOR: RECARGA LA PÁGINA'); return false; }
   try {
     await B.guardarDatos(datos);
     $('save-state').textContent = (MODO_REMOTO ? 'Guardado en el servidor · ' : 'Guardado en este navegador · ') +
@@ -1447,6 +1463,7 @@ function pintarAuth() {
   const chip = (txt, color) => { const c = el('span', 'chip', txt); c.style.setProperty('--c', color); return c; };
 
   if (servidorCaido) bar.appendChild(chip('Servidor no disponible · solo lectura', '#ff003c'));
+  else if (datosCaidos) bar.appendChild(chip('No se cargaron los datos del servidor', '#ff003c'));
   else bar.appendChild(MODO_REMOTO ? chip('🔒 Modo seguro · servidor', '#00ff88') : chip('⚠ Modo local · demo sin seguridad real', '#fcee0a'));
   bar.appendChild(el('span', 'sep'));
 
@@ -1467,16 +1484,23 @@ function pintarAuth() {
 
   let aviso;
   if (servidorCaido) aviso = 'No se pudo conectar con el servidor. Estás viendo datos de ejemplo en <b>modo lectura</b>.';
+  else if (datosCaidos) aviso = 'Hay conexión con el servidor, pero <b>no se pudieron cargar los datos</b>. Estás viendo datos de ejemplo y no se puede guardar nada hasta arreglarlo.';
   else if (!MODO_REMOTO) aviso = '<b>MODO LOCAL (demo):</b> las cuentas y permisos solo existen en este navegador y se pueden saltar con conocimientos básicos. Sirve para probar; para seguridad real conecta un servidor (<b>CONFIG_SERVIDOR</b>). <b>No uses una contraseña que ya uses en otros sitios.</b>' + (puedeEditar() ? ' Tus cambios se guardan solo en este navegador: usa <b>EXPORTAR</b> para tener copias.' : '');
   else if (!sesion) aviso = 'Estás en <b>modo lectura</b>. Para editar, inicia sesión y pide permiso al administrador.';
   else if (!puedeEditar()) aviso = 'Tu cuenta es <b>LECTOR</b>. Pide al administrador que te dé permiso de <b>EDITOR</b> para modificar información.';
   else aviso = 'Los cambios se guardan en el servidor y los ve todo el grupo. Usa <b>EXPORTAR</b> para guardar copias de respaldo.';
   $('notice').innerHTML = aviso;     // texto fijo del programa, sin datos de usuarios
+  if ((servidorCaido || datosCaidos) && detalleError) {
+    const d = el('div', '', 'Detalle técnico: ' + detalleError);   // textContent: seguro
+    d.style.marginTop = '8px'; d.style.color = '#fff';
+    $('notice').appendChild(d);
+  }
 }
 
 async function despuesDeEntrar(msg) {
   sesion = await B.session();
-  try { const d = await B.cargarDatos(); datos = sanear(d) || datosPorDefecto(); } catch (e) {}
+  try { const d = await B.cargarDatos(); datos = sanear(d) || datosPorDefecto(); datosCaidos = false; detalleError = ''; }
+  catch (e) { if (MODO_REMOTO) { datosCaidos = true; detalleError = explicarError(e); } }
   pintarAuth(); pintarTodo(); if (guiaId) pintarGuia();
   toast(msg);
 }
@@ -1593,9 +1617,10 @@ $('btn-reset').addEventListener('click', () => {
 async function iniciar() {
   crearEstructura(); irA('equipos'); pintarAuth(); pintarTodo();
   try { await B.init(); }
-  catch (e) { servidorCaido = true; $('notice').textContent = String(e.message || e); pintarAuth(); if (MODO_REMOTO) return; }
+  catch (e) { servidorCaido = true; detalleError = explicarError(e); pintarAuth(); if (MODO_REMOTO) return; }
   try { sesion = await B.session(); } catch (e) { sesion = null; }
-  try { const d = await B.cargarDatos(); if (d) datos = sanear(d) || datosPorDefecto(); } catch (e) { if (MODO_REMOTO) servidorCaido = true; }
+  try { const d = await B.cargarDatos(); if (d) datos = sanear(d) || datosPorDefecto(); }
+  catch (e) { if (MODO_REMOTO) { datosCaidos = true; detalleError = explicarError(e); } }
   pintarAuth(); pintarTodo();
 }
 const listo = iniciar();
