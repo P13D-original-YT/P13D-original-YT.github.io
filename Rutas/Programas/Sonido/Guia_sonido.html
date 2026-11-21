@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Guía del proyecto de sonido · CSTG Entertainment">
+<meta name="theme-color" content="#03040a">
+<title>Guía de sonido · CSTG</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════ CSTG · Guía de sonido · Estilo Cyberpunk ═══════════════ */
+:root {
+  --red: #ff003c; --cyan: #00f0ff; --yellow: #fcee0a; --green: #00ff88; --purple: #6f0afc;
+  --bg: #03040a; --text: #f2f2f2; --muted: #7d8aa0;
+  --font-display: 'Bebas Neue', sans-serif;
+  --font-mono: 'Share Tech Mono', monospace;
+  --font-body: 'Rajdhani', sans-serif;
+  --g1x: 18px; --g1y: -18px; --g2x: -18px; --g2y: -34px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-body); font-size: 18px; font-weight: 500; line-height: 1.5;
+  background: var(--bg); color: var(--text);
+  min-height: 100vh; overflow-x: hidden; position: relative;
+  -webkit-font-smoothing: antialiased;
+}
+body.lock { overflow: hidden; }
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(ellipse at 12% 8%, rgba(255,0,60,.20), transparent 50%),
+    radial-gradient(ellipse at 88% 92%, rgba(0,240,255,.15), transparent 50%),
+    linear-gradient(rgba(0,240,255,.045) 1px, transparent 1px) 0 0 / 48px 48px,
+    linear-gradient(90deg, rgba(0,240,255,.045) 1px, transparent 1px) 0 0 / 48px 48px;
+}
+button, input, select, textarea { font-family: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+
+.terminal, .terminal-inner, .ghost, .ghost::after, .modal-win, .modal-inner {
+  clip-path: polygon(0 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% 100%, var(--cut) 100%, 0 calc(100% - var(--cut)));
+}
+
+/* Capas de fondo */
+#rain { position: fixed; inset: 0; z-index: 0; width: 100%; height: 100%; opacity: .35; pointer-events: none; }
+.scanlines { position: fixed; inset: 0; z-index: 5; pointer-events: none; overflow: hidden;
+  background: repeating-linear-gradient(0deg, rgba(0,0,0,.28) 0 1px, transparent 1px 3px); }
+.scanlines::after { content: ''; position: absolute; left: 0; right: 0; top: -140px; height: 140px;
+  background: linear-gradient(transparent, rgba(0,240,255,.07), transparent); animation: roll 7s linear infinite; }
+@keyframes roll { to { transform: translateY(calc(100vh + 280px)); } }
+.vignette { position: fixed; inset: 0; z-index: 4; pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,.65) 100%); }
+.hud-frame {
+  position: fixed; inset: 14px; z-index: 6; pointer-events: none;
+  background:
+    linear-gradient(var(--yellow), var(--yellow)) top left / 46px 2px no-repeat,
+    linear-gradient(var(--yellow), var(--yellow)) top left / 2px 46px no-repeat,
+    linear-gradient(var(--yellow), var(--yellow)) top right / 46px 2px no-repeat,
+    linear-gradient(var(--yellow), var(--yellow)) top right / 2px 46px no-repeat,
+    linear-gradient(var(--yellow), var(--yellow)) bottom left / 46px 2px no-repeat,
+    linear-gradient(var(--yellow), var(--yellow)) bottom left / 2px 46px no-repeat,
+    linear-gradient(var(--yellow), var(--yellow)) bottom right / 46px 2px no-repeat,
+    linear-gradient(var(--yellow), var(--yellow)) bottom right / 2px 46px no-repeat;
+  filter: drop-shadow(0 0 4px rgba(252,238,10,.5));
+}
+.hud-label { position: absolute; font-family: var(--font-mono); font-size: 11px; letter-spacing: 2px; color: var(--yellow); }
+.hud-tl { top: 8px; left: 58px; } .hud-tr { top: 8px; right: 58px; }
+.hud-bl { bottom: 8px; left: 58px; } .hud-br { bottom: 8px; right: 58px; }
+
+/* Contenedor y ventanas */
+.wrapper { position: relative; z-index: 2; max-width: 1100px; margin: 0 auto; padding: 36px 24px 64px; }
+.stack { position: relative; margin-top: 44px; }
+.ghost { --cut: 26px; position: absolute; inset: 0; padding: 1px; background: var(--g); pointer-events: none; transition: transform .25s ease-out; }
+.ghost::after { --cut: 25px; content: ''; position: absolute; inset: 1px;
+  background: linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px) 0 0 / 22px 22px, #04050c; }
+.ghost span { position: absolute; top: 3px; left: 34px; z-index: 1; font-family: var(--font-mono); font-size: 10px; letter-spacing: 3px; color: var(--g); text-shadow: 0 0 8px var(--g); }
+.ghost-1 { --g: var(--yellow); filter: drop-shadow(0 0 10px rgba(252,238,10,.35));
+  transform: translate(calc(var(--g1x) + var(--mx, 0) * 10px), calc(var(--g1y) + var(--my, 0) * 6px)); }
+.ghost-2 { --g: var(--red); filter: drop-shadow(0 0 10px rgba(255,0,60,.4));
+  transform: translate(calc(var(--g2x) + var(--mx, 0) * 18px), calc(var(--g2y) + var(--my, 0) * 10px)); }
+.terminal { --cut: 26px; position: relative; z-index: 1; padding: 2px;
+  background: linear-gradient(135deg, var(--cyan), var(--red)); filter: drop-shadow(0 0 18px rgba(0,240,255,.25));
+  animation: power-on .7s cubic-bezier(.22,1,.36,1) backwards; }
+@keyframes power-on { 0% { opacity: 0; transform: scaleY(.02) scaleX(.6); } 35% { opacity: 1; transform: scaleY(.02) scaleX(1); } 100% { transform: none; } }
+.terminal-inner { --cut: 25px; background: rgba(4,6,14,.93); backdrop-filter: blur(6px); }
+.titlebar { display: flex; align-items: center; gap: 16px; padding: 10px 24px 10px 34px;
+  background: linear-gradient(90deg, rgba(0,240,255,.14), rgba(255,0,60,.08)); border-bottom: 1px solid rgba(0,240,255,.3);
+  font-family: var(--font-mono); font-size: 12px; letter-spacing: 2px; }
+.tb-title { color: var(--cyan); flex: 1; }
+.tb-status { color: var(--yellow); }
+.tb-btns { display: flex; gap: 6px; }
+.tb-btns i { font-style: normal; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,.25); color: var(--muted); font-size: 11px; }
+.tb-btns i:last-child { border-color: var(--red); color: var(--red); }
+.terminal-body { padding: 28px 32px 32px; }
+.statusbar { display: flex; gap: 28px; flex-wrap: wrap; padding: 8px 34px 12px; border-top: 1px solid rgba(0,240,255,.2);
+  font-family: var(--font-mono); font-size: 11px; letter-spacing: 2px; color: var(--muted); }
+.statusbar .blink { margin-left: auto; color: var(--cyan); }
+.blink { animation: blink 1.1s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+
+/* ── Cabecera del proyecto ── */
+.proj { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; flex-wrap: wrap; margin-bottom: 20px; }
+.eyebrow { font-family: var(--font-mono); font-size: 12px; letter-spacing: 4px; text-transform: uppercase; color: var(--yellow); }
+.proj-name { font-family: var(--font-display); font-weight: 400; font-size: clamp(38px, 7vw, 68px); letter-spacing: 5px; line-height: 1;
+  text-shadow: 0 0 26px rgba(0,240,255,.35); margin: 4px 0 8px; }
+.proj-desc { color: #b9c3d4; max-width: 640px; white-space: pre-line; }
+.proj-meta { font-family: var(--font-mono); font-size: 12px; letter-spacing: 2px; color: var(--cyan); margin-top: 8px; }
+.proj-meta:empty { display: none; }
+
+.notice { font-family: var(--font-mono); font-size: 12px; letter-spacing: 1px; line-height: 1.6; color: #e9e2a0;
+  background: rgba(252,238,10,.07); border: 1px dashed rgba(252,238,10,.5); padding: 10px 14px; margin-bottom: 22px; }
+.notice b { color: var(--yellow); font-weight: 400; }
+
+/* ── Botones ── */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; text-decoration: none;
+  font-family: var(--font-mono); font-size: 12px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--cyan); background: transparent; border: 1px solid var(--cyan); padding: 9px 16px;
+  transition: color .25s, background .25s, box-shadow .25s, border-color .25s;
+}
+.btn:hover, .btn:focus-visible { color: #000; background: var(--cyan); box-shadow: 0 0 20px rgba(0,240,255,.55); outline: none; }
+.btn.y { color: var(--yellow); border-color: var(--yellow); }
+.btn.y:hover, .btn.y:focus-visible { color: #000; background: var(--yellow); box-shadow: 0 0 20px rgba(252,238,10,.55); }
+.btn.r { color: var(--red); border-color: var(--red); }
+.btn.r:hover, .btn.r:focus-visible { color: #fff; background: var(--red); box-shadow: 0 0 20px rgba(255,0,60,.55); }
+.btn.primary { color: #000; background: var(--yellow); border-color: var(--yellow); box-shadow: 0 0 14px rgba(252,238,10,.35); }
+.btn.primary:hover { box-shadow: 0 0 28px rgba(252,238,10,.8); }
+.btn.sm { padding: 5px 10px; font-size: 11px; letter-spacing: 1px; }
+.btn svg { width: 14px; height: 14px; }
+
+/* ── Barra superior ── */
+.toolbar { display: flex; gap: 14px; margin-bottom: 14px; }
+.toolbar .back { flex-shrink: 0; padding: 0 20px; }
+.search { position: relative; flex: 1; }
+.search input {
+  width: 100%; height: 44px; font-family: var(--font-mono); font-size: 14px; letter-spacing: 2px; color: var(--text);
+  background: rgba(0,240,255,.05); border: 1px solid rgba(0,240,255,.35); border-left: 3px solid var(--cyan);
+  padding: 0 14px 0 44px; outline: none; transition: border-color .25s, box-shadow .25s, background .25s;
+}
+.search input::placeholder { color: var(--muted); }
+.search input:focus { border-color: var(--cyan); background: rgba(0,240,255,.09); box-shadow: 0 0 20px rgba(0,240,255,.3); }
+.search svg { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; color: var(--cyan); pointer-events: none; }
+.actions { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 22px; }
+.actions .sep { flex: 1; }
+.save-state { font-family: var(--font-mono); font-size: 11px; letter-spacing: 1px; color: var(--muted); align-self: center; }
+
+/* ── Pestañas ── */
+.tabs { display: flex; gap: 8px; margin-bottom: 22px; overflow-x: auto; padding-bottom: 4px; border-bottom: 1px solid rgba(0,240,255,.2); }
+.tab {
+  --c: var(--cyan); flex-shrink: 0; cursor: pointer;
+  display: flex; align-items: center; gap: 10px;
+  font-family: var(--font-mono); font-size: 13px; letter-spacing: 2px; text-transform: uppercase;
+  color: #ccd; background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.15); border-bottom: 3px solid rgba(255,255,255,.2);
+  padding: 10px 16px; transition: color .25s, border-color .25s, background .25s, box-shadow .25s;
+}
+.tab:hover { color: #fff; border-bottom-color: var(--c); }
+.tab[aria-selected="true"] { color: var(--c); border-color: var(--c); background: color-mix(in srgb, var(--c) 10%, transparent); box-shadow: 0 0 16px color-mix(in srgb, var(--c) 30%, transparent); }
+.tab .n { font-size: 11px; color: var(--muted); }
+
+/* ── Secciones y tarjetas ── */
+.sec { display: none; }
+.sec.active { display: block; }
+.print-h { display: none; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+.item {
+  --c: var(--cyan);
+  display: flex; flex-direction: column; gap: 6px; padding: 14px 16px;
+  background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.14); border-left: 3px solid var(--c);
+  transition: border-color .25s, box-shadow .25s, background .25s; animation: rise .45s both;
+}
+@keyframes rise { from { opacity: 0; transform: translateY(12px); } }
+.item:hover { border-color: var(--c); background: rgba(255,255,255,.05); box-shadow: 0 0 20px color-mix(in srgb, var(--c) 35%, transparent); }
+.item-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.item-title { font-size: 21px; font-weight: 700; line-height: 1.15; word-break: break-word; }
+.badge { flex-shrink: 0; font-family: var(--font-mono); font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--b, var(--c)); border: 1px solid var(--b, var(--c)); padding: 2px 8px; }
+.item-sub { font-family: var(--font-mono); font-size: 12px; letter-spacing: 1px; color: var(--c); }
+.lines { display: flex; flex-direction: column; gap: 4px; margin-top: 4px; }
+.line { font-size: 16px; color: #cfd6e2; line-height: 1.4; }
+.line b { display: block; font-family: var(--font-mono); font-weight: 400; font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); }
+.line.mono span { font-family: var(--font-mono); font-size: 13px; white-space: pre-wrap; color: #bfe9ee; }
+.line span { white-space: pre-line; word-break: break-word; }
+.item-actions { display: flex; gap: 8px; margin-top: auto; padding-top: 10px; }
+.empty { display: none; text-align: center; padding: 50px 20px; color: var(--muted); font-family: var(--font-mono); letter-spacing: 2px; border: 1px dashed rgba(255,255,255,.15); }
+.empty.show { display: block; }
+.empty b { display: block; font-family: var(--font-display); font-weight: 400; font-size: 30px; color: var(--cyan); letter-spacing: 4px; margin-bottom: 6px; }
+
+/* ── Ventana de formulario ── */
+.modal { position: fixed; inset: 0; z-index: 100; display: flex; align-items: center; justify-content: center; padding: 24px;
+  background: rgba(2,3,8,.78); backdrop-filter: blur(4px); animation: fade .25s ease; }
+.modal[hidden] { display: none; }
+@keyframes fade { from { opacity: 0; } }
+.modal-win { --cut: 24px; width: 100%; max-width: 680px; max-height: calc(100vh - 48px); display: flex; padding: 2px;
+  background: linear-gradient(135deg, var(--yellow), var(--red)); filter: drop-shadow(0 0 26px rgba(252,238,10,.3));
+  animation: pop .35s cubic-bezier(.22,1,.36,1); }
+@keyframes pop { from { opacity: 0; transform: scale(.92) translateY(14px); } }
+.modal-inner { --cut: 23px; width: 100%; display: flex; flex-direction: column; overflow: hidden; background: #05070f; }
+.m-bar { display: flex; align-items: center; gap: 14px; padding: 8px 20px 8px 8px;
+  background: linear-gradient(90deg, rgba(252,238,10,.16), rgba(255,0,60,.1)); border-bottom: 1px solid rgba(252,238,10,.35);
+  font-family: var(--font-mono); font-size: 12px; letter-spacing: 2px; color: var(--yellow); }
+.m-close { width: 44px; height: 34px; cursor: pointer; flex-shrink: 0; font-family: var(--font-mono); font-size: 14px;
+  color: var(--red); background: rgba(255,0,60,.08); border: 1px solid var(--red); transition: background .25s, color .25s, box-shadow .25s; }
+.m-close:hover, .m-close:focus-visible { background: var(--red); color: #fff; box-shadow: 0 0 18px rgba(255,0,60,.6); outline: none; }
+.m-body { padding: 20px 26px 24px; overflow-y: auto; }
+.fields { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 16px; }
+.field { display: flex; flex-direction: column; gap: 4px; }
+.field.full { grid-column: 1 / -1; }
+.field label { font-family: var(--font-mono); font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--cyan); }
+.field label i { color: var(--red); font-style: normal; }
+.field input, .field select, .field textarea {
+  width: 100%; font-family: var(--font-mono); font-size: 14px; color: var(--text);
+  background: rgba(0,240,255,.05); border: 1px solid rgba(0,240,255,.3); border-left: 3px solid var(--cyan);
+  padding: 9px 12px; outline: none; transition: border-color .25s, box-shadow .25s, background .25s;
+}
+.field textarea { min-height: 110px; resize: vertical; line-height: 1.5; }
+.field input:focus, .field select:focus, .field textarea:focus { background: rgba(0,240,255,.09); box-shadow: 0 0 16px rgba(0,240,255,.3); }
+.field input.err { border-color: var(--red); box-shadow: 0 0 14px rgba(255,0,60,.5); }
+.field option { background: #05070f; color: #fff; }
+.field .hint { font-size: 13px; color: var(--muted); }
+.m-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+
+/* Aviso */
+#toast { position: fixed; left: 50%; bottom: 28px; transform: translate(-50%, 20px); z-index: 200; opacity: 0; pointer-events: none;
+  font-family: var(--font-mono); font-size: 12px; letter-spacing: 2px; color: #000; background: var(--yellow); padding: 8px 18px;
+  box-shadow: 0 0 20px rgba(252,238,10,.5); transition: opacity .3s, transform .3s; }
+#toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+/* Subir / bajar */
+.scroll-nav { position: fixed; right: 28px; bottom: 30px; z-index: 20; display: flex; flex-direction: column; gap: 10px; }
+.scroll-btn { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; cursor: pointer;
+  color: var(--cyan); background: rgba(0,0,0,.7); border: 1px solid var(--cyan);
+  transition: opacity .3s, transform .3s, background .25s, color .25s, box-shadow .25s; }
+.scroll-btn:hover, .scroll-btn:focus-visible { background: var(--cyan); color: #000; box-shadow: 0 0 22px rgba(0,240,255,.6); outline: none; }
+.scroll-btn svg { width: 18px; height: 18px; }
+.scroll-btn.hidden { opacity: 0; pointer-events: none; transform: scale(.8); }
+
+@media (max-width: 680px) {
+  :root { --g1x: 8px; --g1y: -10px; --g2x: -8px; --g2y: -20px; }
+  .wrapper { padding: 28px 14px 48px; }
+  .stack { margin-top: 28px; }
+  .terminal-body { padding: 20px 14px 24px; }
+  .titlebar { padding: 8px 14px 8px 22px; gap: 10px; font-size: 10px; }
+  .tb-btns { display: none; }
+  .statusbar { padding: 8px 22px 12px; gap: 14px; font-size: 10px; }
+  .toolbar { flex-direction: column; }
+  .toolbar .back { height: 42px; }
+  .grid { grid-template-columns: 1fr; }
+  .fields { grid-template-columns: 1fr; }
+  .hud-frame { inset: 8px; }
+  .hud-label { display: none; }
+  .ghost span { font-size: 8px; left: 22px; }
+  .scroll-nav { right: 16px; bottom: 18px; }
+  .modal { padding: 10px; }
+  .m-body { padding: 16px 16px 20px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition-duration: .01s !important; }
+}
+
+/* ── Impresión: documento limpio para entregar ── */
+@media print {
+  body { background: #fff; color: #000; font-size: 12px; }
+  body::before, #rain, .scanlines, .vignette, .hud-frame, .ghost, .scroll-nav, .toolbar, .actions, .tabs,
+  .tb-btns, .statusbar, .item-actions, .notice, .modal, #toast, .empty, .proj .btn { display: none !important; }
+  .wrapper { padding: 0; max-width: none; } .stack { margin: 0; }
+  .terminal, .terminal-inner { clip-path: none; background: #fff; padding: 0; filter: none; animation: none; backdrop-filter: none; }
+  .titlebar { background: none; border-bottom: 2px solid #000; padding: 0 0 6px; }
+  .terminal-body { padding: 10px 0; }
+  .sec { display: block !important; margin-bottom: 18px; }
+  .print-h { display: block; font-family: var(--font-display); font-size: 24px; letter-spacing: 3px; margin: 14px 0 8px; border-bottom: 1px solid #000; }
+  .grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .item { border: 1px solid #888; border-left: 4px solid #000; background: #fff; break-inside: avoid; animation: none; box-shadow: none; }
+  * { color: #000 !important; text-shadow: none !important; }
+  .badge { border-color: #000; }
+}
+</style>
+</head>
+<body>
+
+<canvas id="rain" aria-hidden="true"></canvas>
+<div class="scanlines" aria-hidden="true"></div>
+<div class="vignette" aria-hidden="true"></div>
+<div class="hud-frame" aria-hidden="true">
+  <span class="hud-label hud-tl">SYS//ONLINE</span>
+  <span class="hud-label hud-tr" id="clock">--:--:--</span>
+  <span class="hud-label hud-bl">CSTG_SONIDO</span>
+  <span class="hud-label hud-br">v0.1 DEV</span>
+</div>
+
+<div class="wrapper">
+  <div class="stack">
+    <div class="ghost ghost-2" aria-hidden="true"><span>REMOTE_NODE_02 // AUDIO_BUS</span></div>
+    <div class="ghost ghost-1" aria-hidden="true"><span>REMOTE_NODE_01 // SOUND_PROJECT</span></div>
+
+    <main class="terminal">
+      <div class="terminal-inner">
+
+        <div class="titlebar">
+          <span class="tb-title">▌CSTG_OS // GUIA_SONIDO</span>
+          <span class="tb-status"><span class="blink">●</span> EN DESARROLLO</span>
+          <span class="tb-btns" aria-hidden="true"><i>_</i><i>▢</i><i>×</i></span>
+        </div>
+
+        <div class="terminal-body">
+
+          <!-- Cabecera del proyecto -->
+          <header class="proj">
+            <div>
+              <div class="eyebrow">Proyecto escolar // en desarrollo_</div>
+              <h1 class="proj-name" id="p-nombre">Proyecto de sonido</h1>
+              <p class="proj-desc" id="p-desc"></p>
+              <div class="proj-meta" id="p-meta"></div>
+            </div>
+            <button type="button" class="btn sm y" id="btn-proyecto">✎ Editar info del proyecto</button>
+          </header>
+
+          <div class="notice">
+            <b>AVISO:</b> lo que agregues se guarda <b>solo en este navegador</b> (no se sube a internet).
+            Usa <b>EXPORTAR</b> para guardar una copia en un archivo y <b>IMPORTAR</b> para recuperarla o pasarla a otro equipo.
+          </div>
+
+          <!-- Volver + Buscador -->
+          <div class="toolbar">
+            <a href="../programas.html" class="btn y back">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+              Volver
+            </a>
+            <label class="search">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.5-4.5"/></svg>
+              <input type="search" id="q" placeholder="BUSCAR EN ESTA SECCIÓN_" autocomplete="off" spellcheck="false" aria-label="Buscador">
+            </label>
+          </div>
+
+          <!-- Acciones -->
+          <div class="actions">
+            <button type="button" class="btn primary" id="btn-add">+ Agregar</button>
+            <span class="sep"></span>
+            <span class="save-state" id="save-state"></span>
+            <button type="button" class="btn" id="btn-export">⬇ Exportar</button>
+            <button type="button" class="btn" id="btn-import">⬆ Importar</button>
+            <button type="button" class="btn" id="btn-print">🖨 Imprimir</button>
+            <button type="button" class="btn r" id="btn-reset">↺ Restablecer</button>
+            <input type="file" id="file" accept="application/json,.json" hidden>
+          </div>
+
+          <!-- Pestañas -->
+          <div class="tabs" id="tabs" role="tablist" aria-label="Secciones"></div>
+
+          <!-- Secciones (se generan con JavaScript) -->
+          <div id="secs"></div>
+
+        </div>
+
+        <div class="statusbar" aria-hidden="true">
+          <span>USER: GUEST</span><span>NET: SECURE</span><span>CSTG Entertainment · Guía de sonido</span><span class="blink">▮</span>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Ventana de formulario -->
+<div class="modal" id="modal" hidden>
+  <div class="modal-win" role="dialog" aria-modal="true" aria-labelledby="m-title">
+    <div class="modal-inner">
+      <div class="m-bar">
+        <button type="button" class="m-close" id="m-close" aria-label="Cerrar ventana">X</button>
+        <span id="m-title">FORMULARIO</span>
+      </div>
+      <form class="m-body" id="form" novalidate>
+        <div class="fields" id="fields"></div>
+        <div class="m-actions">
+          <button type="button" class="btn" id="m-cancel">Cancelar</button>
+          <button type="submit" class="btn primary">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<div class="scroll-nav">
+  <button class="scroll-btn hidden" id="btn-up" type="button" aria-label="Subir">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 15l-6-6-6 6"/></svg>
+  </button>
+  <button class="scroll-btn hidden" id="btn-down" type="button" aria-label="Bajar">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+  </button>
+</div>
+
+<script>
+/* ════════════════════════════════════════════════════════════
+   1) DATOS INICIALES
+   Son los datos con los que arranca la página la primera vez.
+   Para dejar tus datos "fijos": agrega todo en la página,
+   pulsa EXPORTAR, abre el archivo .json y pega su contenido aquí
+   (reemplaza todo lo que está entre las llaves de DATOS_INICIALES).
+   ════════════════════════════════════════════════════════════ */
+const DATOS_INICIALES = {
+  proyecto: {
+    nombre: 'Proyecto de sonido',
+    colegio: '',
+    grupo: '',
+    responsables: '',
+    descripcion: 'Documentación de los equipos de sonido, cómo se conectan, los canales y la configuración de los paneles.'
+  },
+  equipos: [
+    { nombre: 'Mezclador (ejemplo)', tipo: 'Mezclador / Consola', marca: '', modelo: '', cantidad: '1', ubicacion: 'Cabina', estado: 'Pendiente', notas: 'Reemplaza este ejemplo con tu equipo real.' },
+    { nombre: 'Altavoz principal (ejemplo)', tipo: 'Altavoz / Monitor', marca: '', modelo: '', cantidad: '2', ubicacion: 'Escenario', estado: 'Pendiente', notas: '' }
+  ],
+  conexiones: [
+    { origen: 'Micrófono 1 (ejemplo)', salida: 'XLR OUT', destino: 'Mezclador (ejemplo)', entrada: 'CH 1', cable: 'XLR', canal: 'CH 1', notas: '' },
+    { origen: 'Mezclador (ejemplo)', salida: 'MAIN L/R', destino: 'Altavoz principal (ejemplo)', entrada: 'INPUT', cable: 'XLR', canal: 'Main', notas: '' }
+  ],
+  canales: [
+    { numero: '1', fuente: 'Micrófono voz (ejemplo)', entrada: 'Mic', fantasma: 'No', ganancia: '', eq: '', envios: '', destino: 'Main L/R', notas: '' },
+    { numero: '2', fuente: 'Instrumento (ejemplo)', entrada: 'Line', fantasma: 'No', ganancia: '', eq: '', envios: '', destino: 'Main L/R', notas: '' }
+  ],
+  paneles: [
+    { nombre: 'Panel principal (ejemplo)', equipo: 'Mezclador (ejemplo)', configuracion: 'Ganancia: 12 o\'clock\nEcualizador: plano\nMaster: -6 dB', notas: 'Escribe una configuración por línea.' }
+  ],
+  notas: [
+    { titulo: 'Completar el inventario de equipos', tipo: 'Pendiente', prioridad: 'Alta', estado: 'Pendiente', detalle: 'Registrar marca, modelo y estado de cada equipo.' }
+  ]
+};
+
+/* ════════════════════════════════════════════════════════════
+   2) SECCIONES Y CAMPOS
+   Para agregar un campo nuevo: añade una línea en "campos".
+   Para cambiar las opciones de una lista: edita "op".
+   ════════════════════════════════════════════════════════════ */
+const CABLES = ['XLR', 'TRS (1/4")', 'TS (1/4")', 'RCA', 'Speakon', 'USB', 'HDMI', 'Jack 3.5 mm', 'Ethernet / Dante', 'Inalámbrico', 'Otro'];
+
+const SECCIONES = {
+  equipos: {
+    titulo: 'Equipos', singular: 'equipo', color: '#00f0ff',
+    campos: [
+      { k: 'nombre', l: 'Nombre', req: true, full: true, ph: 'Ej. Mezclador principal' },
+      { k: 'tipo', l: 'Tipo', t: 'select', op: ['Mezclador / Consola', 'Micrófono', 'Altavoz / Monitor', 'Amplificador', 'Interfaz de audio', 'Procesador / Efectos', 'Instrumento', 'Cable / Accesorio', 'Otro'] },
+      { k: 'estado', l: 'Estado', t: 'select', op: ['Operativo', 'En revisión', 'Dañado', 'Pendiente'] },
+      { k: 'marca', l: 'Marca' },
+      { k: 'modelo', l: 'Modelo' },
+      { k: 'cantidad', l: 'Cantidad', t: 'number' },
+      { k: 'ubicacion', l: 'Ubicación' },
+      { k: 'notas', l: 'Notas', t: 'textarea', full: true }
+    ],
+    cabecera: (i) => i.nombre,
+    sub: (i) => [i.tipo, [i.marca, i.modelo].filter(Boolean).join(' ')].filter(Boolean).join(' · '),
+    badge: (i) => i.estado,
+    lineas: ['cantidad', 'ubicacion', 'notas']
+  },
+  conexiones: {
+    titulo: 'Conexiones', singular: 'conexión', color: '#fcee0a',
+    campos: [
+      { k: 'origen', l: 'Origen (equipo)', req: true, ph: 'Ej. Micrófono 1' },
+      { k: 'salida', l: 'Salida / puerto', ph: 'Ej. XLR OUT' },
+      { k: 'destino', l: 'Destino (equipo)', req: true, ph: 'Ej. Mezclador' },
+      { k: 'entrada', l: 'Entrada / puerto', ph: 'Ej. CH 1' },
+      { k: 'cable', l: 'Tipo de cable', t: 'select', op: CABLES },
+      { k: 'canal', l: 'Canal / bus', ph: 'Ej. CH 1, Aux 2, Main' },
+      { k: 'notas', l: 'Notas', t: 'textarea', full: true }
+    ],
+    cabecera: (i) => (i.origen || '?') + '  →  ' + (i.destino || '?'),
+    sub: (i) => (i.salida || '—') + '  ➜  ' + (i.entrada || '—'),
+    badge: (i) => i.cable,
+    lineas: ['canal', 'notas']
+  },
+  canales: {
+    titulo: 'Canales', singular: 'canal', color: '#ff003c',
+    campos: [
+      { k: 'numero', l: 'N° de canal', t: 'number', req: true },
+      { k: 'fuente', l: 'Fuente / instrumento', ph: 'Ej. Micrófono voz principal' },
+      { k: 'entrada', l: 'Tipo de entrada', t: 'select', op: ['Mic', 'Line', 'Instrumento (DI)', 'USB', 'Bluetooth', 'Otro'] },
+      { k: 'fantasma', l: 'Alimentación fantasma', t: 'select', op: ['No', 'Sí (48V)'] },
+      { k: 'ganancia', l: 'Ganancia (gain)', ph: 'Ej. 12 dB' },
+      { k: 'eq', l: 'Ecualizador', ph: 'Ej. Graves -2, Medios 0, Agudos +3' },
+      { k: 'envios', l: 'Envíos (aux / efectos)', ph: 'Ej. Aux 1 a 50%' },
+      { k: 'destino', l: 'Destino / bus', ph: 'Ej. Main L/R' },
+      { k: 'notas', l: 'Notas', t: 'textarea', full: true }
+    ],
+    cabecera: (i) => 'CH ' + (i.numero || '?') + ' · ' + (i.fuente || 'Sin fuente'),
+    sub: (i) => i.entrada,
+    badge: (i) => (i.fantasma && i.fantasma !== 'No' ? '48V' : ''),
+    lineas: ['ganancia', 'eq', 'envios', 'destino', 'notas']
+  },
+  paneles: {
+    titulo: 'Paneles', singular: 'panel', color: '#00ff88',
+    campos: [
+      { k: 'nombre', l: 'Nombre del panel', req: true, full: true, ph: 'Ej. Panel de control del mezclador' },
+      { k: 'equipo', l: 'Equipo al que pertenece', full: true },
+      { k: 'configuracion', l: 'Configuración', t: 'textarea', full: true, mono: true, hint: 'Escribe un ajuste por línea. Ej.: Ganancia: 12 dB' },
+      { k: 'notas', l: 'Notas', t: 'textarea', full: true }
+    ],
+    cabecera: (i) => i.nombre,
+    sub: (i) => i.equipo,
+    badge: () => '',
+    lineas: ['configuracion', 'notas']
+  },
+  notas: {
+    titulo: 'Notas', singular: 'nota', color: '#6f0afc',
+    campos: [
+      { k: 'titulo', l: 'Título', req: true, full: true },
+      { k: 'tipo', l: 'Tipo', t: 'select', op: ['Pendiente', 'Idea', 'Problema', 'Dato'] },
+      { k: 'prioridad', l: 'Prioridad', t: 'select', op: ['Alta', 'Media', 'Baja'] },
+      { k: 'estado', l: 'Estado', t: 'select', op: ['Pendiente', 'En curso', 'Hecho'] },
+      { k: 'detalle', l: 'Detalle', t: 'textarea', full: true }
+    ],
+    cabecera: (i) => i.titulo,
+    sub: (i) => [i.tipo, i.prioridad ? 'Prioridad ' + i.prioridad : ''].filter(Boolean).join(' · '),
+    badge: (i) => i.estado,
+    lineas: ['detalle']
+  }
+};
+
+const CAMPOS_PROYECTO = [
+  { k: 'nombre', l: 'Nombre del proyecto', req: true, full: true },
+  { k: 'colegio', l: 'Colegio' },
+  { k: 'grupo', l: 'Grado / grupo' },
+  { k: 'responsables', l: 'Responsables', full: true },
+  { k: 'descripcion', l: 'Descripción', t: 'textarea', full: true }
+];
+
+const COLOR_ESTADO = { operativo: '#00ff88', hecho: '#00ff88', 'en revision': '#fcee0a', 'en curso': '#fcee0a', pendiente: '#fcee0a', danado: '#ff003c', alta: '#ff003c', '48v': '#ff003c' };
+
+/* ═════════════ Utilidades ═════════════ */
+const LS_KEY = 'cstg_sonido_v1';
+const $ = (id) => document.getElementById(id);
+const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text !== undefined) e.textContent = text; return e; };
+const norm = (s) => String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+const uid = () => Math.random().toString(36).slice(2, 10);
+
+function toast(msg) {
+  const t = $('toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+/* Limpia y valida datos (también los importados) */
+function sanear(o) {
+  if (!o || typeof o !== 'object') return null;
+  const out = { proyecto: {} };
+  CAMPOS_PROYECTO.forEach((c) => { out.proyecto[c.k] = String((o.proyecto || {})[c.k] == null ? '' : o.proyecto[c.k]).slice(0, 2000); });
+  Object.keys(SECCIONES).forEach((s) => {
+    const arr = Array.isArray(o[s]) ? o[s] : [];
+    out[s] = arr.filter((x) => x && typeof x === 'object').map((x) => {
+      const it = { id: String(x.id || uid()) };
+      SECCIONES[s].campos.forEach((c) => { it[c.k] = String(x[c.k] == null ? '' : x[c.k]).slice(0, 4000); });
+      return it;
+    });
+  });
+  return out;
+}
+
+function cargar() {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (raw) { const d = sanear(JSON.parse(raw)); if (d) return d; }
+  } catch (e) {}
+  return sanear(JSON.parse(JSON.stringify(DATOS_INICIALES)));
+}
+
+let datos = cargar();
+let activa = 'equipos';
+
+function guardar() {
+  try {
+    localStorage.setItem(LS_KEY, JSON.stringify(datos));
+    $('save-state').textContent = 'Guardado en este navegador · ' + new Date().toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
+  } catch (e) {
+    $('save-state').textContent = '⚠ No se pudo guardar (usa Exportar)';
+  }
+}
+
+/* ═════════════ Pintar pantalla ═════════════ */
+function pintarProyecto() {
+  const p = datos.proyecto;
+  $('p-nombre').textContent = p.nombre || 'Proyecto de sonido';
+  $('p-desc').textContent = p.descripcion;
+  $('p-meta').textContent = [p.colegio, p.grupo, p.responsables].filter(Boolean).join('  ·  ');
+  document.title = (p.nombre || 'Guía de sonido') + ' · CSTG';
+}
+
+function crearEstructura() {
+  const tabs = $('tabs'), secs = $('secs');
+  Object.keys(SECCIONES).forEach((k) => {
+    const S = SECCIONES[k];
+    const tab = el('button', 'tab');
+    tab.type = 'button'; tab.id = 'tab-' + k; tab.dataset.sec = k;
+    tab.setAttribute('role', 'tab');
+    tab.style.setProperty('--c', S.color);
+    tab.append(S.titulo + ' ', el('span', 'n', '0'));
+    tab.addEventListener('click', () => irA(k));
+    tabs.appendChild(tab);
+
+    const sec = el('section', 'sec'); sec.id = 'sec-' + k;
+    sec.setAttribute('role', 'tabpanel');
+    sec.appendChild(el('h2', 'print-h', S.titulo));
+    sec.appendChild(el('div', 'grid')).id = 'grid-' + k;
+    const vacio = el('div', 'empty'); vacio.id = 'empty-' + k;
+    sec.appendChild(vacio);
+    secs.appendChild(sec);
+  });
+}
+
+function irA(k) {
+  activa = k;
+  Object.keys(SECCIONES).forEach((s) => {
+    $('tab-' + s).setAttribute('aria-selected', String(s === k));
+    $('sec-' + s).classList.toggle('active', s === k);
+  });
+  $('btn-add').textContent = '+ Agregar ' + SECCIONES[k].singular;
+}
+
+function colorBadge(valor, base) { return COLOR_ESTADO[norm(valor)] || base; }
+
+function tarjeta(clave, it, i) {
+  const S = SECCIONES[clave];
+  const card = el('article', 'item');
+  card.style.setProperty('--c', S.color);
+  card.style.animationDelay = Math.min(i, 12) * 0.04 + 's';
+
+  const head = el('div', 'item-head');
+  head.appendChild(el('div', 'item-title', S.cabecera(it)));
+  const b = S.badge(it);
+  if (b) { const bd = el('span', 'badge', b); bd.style.setProperty('--b', colorBadge(b, S.color)); head.appendChild(bd); }
+  card.appendChild(head);
+
+  const sub = S.sub(it);
+  if (sub) card.appendChild(el('div', 'item-sub', sub));
+
+  const lines = el('div', 'lines');
+  S.lineas.forEach((k) => {
+    if (!it[k]) return;
+    const campo = S.campos.find((c) => c.k === k);
+    const ln = el('div', 'line' + (campo.mono ? ' mono' : ''));
+    ln.appendChild(el('b', '', campo.l));
+    ln.appendChild(el('span', '', it[k]));
+    lines.appendChild(ln);
+  });
+  if (lines.children.length) card.appendChild(lines);
+
+  const acc = el('div', 'item-actions');
+  const ed = el('button', 'btn sm', '✎ Editar'); ed.type = 'button';
+  ed.addEventListener('click', () => editar(clave, it));
+  const del = el('button', 'btn sm r', '🗑 Eliminar'); del.type = 'button';
+  del.addEventListener('click', () => {
+    if (confirm('¿Eliminar "' + S.cabecera(it) + '"? Esta acción no se puede deshacer.')) {
+      datos[clave] = datos[clave].filter((x) => x.id !== it.id);
+      guardar(); pintarTodo(); toast('ELIMINADO');
+    }
+  });
+  acc.append(ed, del);
+  card.appendChild(acc);
+  return card;
+}
+
+function pintarSeccion(clave) {
+  const cont = $('grid-' + clave), vacio = $('empty-' + clave);
+  const q = norm($('q').value.trim());
+  let lista = datos[clave].slice();
+  if (clave === 'canales') lista.sort((a, b) => (parseFloat(a.numero) || 0) - (parseFloat(b.numero) || 0));
+  const vis = lista.filter((it) => !q || norm(SECCIONES[clave].campos.map((c) => it[c.k]).join(' ')).includes(q));
+
+  cont.textContent = '';
+  vis.forEach((it, i) => cont.appendChild(tarjeta(clave, it, i)));
+
+  vacio.textContent = '';
+  if (!datos[clave].length) {
+    vacio.append(el('b', '', 'SIN DATOS'), 'Pulsa "+ Agregar ' + SECCIONES[clave].singular + '" para empezar');
+  } else if (!vis.length) {
+    vacio.append(el('b', '', 'SIN RESULTADOS'), 'Prueba con otra búsqueda');
+  }
+  vacio.classList.toggle('show', !vis.length);
+  $('tab-' + clave).querySelector('.n').textContent = datos[clave].length;
+}
+
+function pintarTodo() {
+  pintarProyecto();
+  Object.keys(SECCIONES).forEach(pintarSeccion);
+}
+
+/* ═════════════ Formulario (agregar / editar) ═════════════ */
+const modal = $('modal');
+let ultimoFoco = null, alGuardar = null, camposActuales = [];
+
+function abrirForm(titulo, campos, valores, cb) {
+  ultimoFoco = document.activeElement;
+  camposActuales = campos; alGuardar = cb;
+  $('m-title').textContent = titulo.toUpperCase();
+  const cont = $('fields'); cont.textContent = '';
+
+  campos.forEach((c) => {
+    const f = el('div', 'field' + (c.full || c.t === 'textarea' ? ' full' : ''));
+    const lab = el('label', '', c.l); lab.htmlFor = 'f-' + c.k;
+    if (c.req) lab.append(' ', el('i', '', '*'));
+    f.appendChild(lab);
+
+    let inp;
+    if (c.t === 'select') {
+      inp = el('select');
+      const vacio = el('option', '', '— elegir —'); vacio.value = ''; inp.appendChild(vacio);
+      c.op.forEach((o) => { const op = el('option', '', o); op.value = o; inp.appendChild(op); });
+    } else if (c.t === 'textarea') {
+      inp = el('textarea');
+    } else {
+      inp = el('input'); inp.type = c.t === 'number' ? 'number' : 'text';
+      if (c.t === 'number') inp.min = '0';
+    }
+    inp.id = 'f-' + c.k; inp.name = c.k;
+    if (c.ph) inp.placeholder = c.ph;
+    inp.value = valores && valores[c.k] != null ? valores[c.k] : '';
+    f.appendChild(inp);
+    if (c.hint) f.appendChild(el('div', 'hint', c.hint));
+    cont.appendChild(f);
+  });
+
+  modal.hidden = false;
+  document.body.classList.add('lock');
+  const primero = cont.querySelector('input, select, textarea');
+  if (primero) primero.focus();
+}
+
+function cerrarForm() {
+  modal.hidden = true;
+  document.body.classList.remove('lock');
+  if (ultimoFoco && ultimoFoco.focus) ultimoFoco.focus();
+}
+
+$('form').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const vals = {}; let ok = true;
+  camposActuales.forEach((c) => {
+    const inp = $('f-' + c.k);
+    vals[c.k] = inp.value.trim();
+    const falta = c.req && !vals[c.k];
+    inp.classList.toggle('err', falta);
+    if (falta) { ok = false; }
+  });
+  if (!ok) { toast('COMPLETA LOS CAMPOS CON *'); const e1 = $('fields').querySelector('.err'); if (e1) e1.focus(); return; }
+  alGuardar(vals);
+  cerrarForm();
+});
+$('m-close').addEventListener('click', cerrarForm);
+$('m-cancel').addEventListener('click', cerrarForm);
+modal.addEventListener('pointerdown', (e) => { if (e.target === modal) cerrarForm(); });
+document.addEventListener('keydown', (e) => {
+  if (modal.hidden) return;
+  if (e.key === 'Escape') cerrarForm();
+  if (e.key === 'Tab') {
+    const f = Array.from(modal.querySelectorAll('button, input, select, textarea')).filter((x) => !x.disabled && x.offsetParent !== null);
+    if (!f.length) return;
+    const a = f[0], z = f[f.length - 1];
+    if (e.shiftKey && document.activeElement === a) { e.preventDefault(); z.focus(); }
+    else if (!e.shiftKey && document.activeElement === z) { e.preventDefault(); a.focus(); }
+  }
+});
+
+function agregar() {
+  const S = SECCIONES[activa];
+  const base = {};
+  if (activa === 'canales') {
+    const mayor = datos.canales.reduce((m, c) => Math.max(m, parseFloat(c.numero) || 0), 0);
+    base.numero = String(mayor + 1);
+  }
+  abrirForm('Agregar ' + S.singular, S.campos, base, (vals) => {
+    datos[activa].push(Object.assign({ id: uid() }, vals));
+    guardar(); pintarTodo(); toast('GUARDADO');
+  });
+}
+function editar(clave, it) {
+  const S = SECCIONES[clave];
+  abrirForm('Editar ' + S.singular, S.campos, it, (vals) => {
+    Object.assign(it, vals);
+    guardar(); pintarTodo(); toast('ACTUALIZADO');
+  });
+}
+$('btn-add').addEventListener('click', agregar);
+$('btn-proyecto').addEventListener('click', () => {
+  abrirForm('Info del proyecto', CAMPOS_PROYECTO, datos.proyecto, (vals) => {
+    datos.proyecto = vals; guardar(); pintarTodo(); toast('ACTUALIZADO');
+  });
+});
+$('q').addEventListener('input', () => Object.keys(SECCIONES).forEach(pintarSeccion));
+
+/* ═════════════ Exportar / Importar / Imprimir / Restablecer ═════════════ */
+$('btn-export').addEventListener('click', () => {
+  const blob = new Blob([JSON.stringify(datos, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'guia-sonido-datos.json';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  toast('ARCHIVO EXPORTADO');
+});
+
+$('btn-import').addEventListener('click', () => $('file').click());
+$('file').addEventListener('change', (e) => {
+  const f = e.target.files[0];
+  if (!f) return;
+  const r = new FileReader();
+  r.onload = () => {
+    try {
+      const d = sanear(JSON.parse(r.result));
+      if (!d) throw new Error('formato');
+      if (!confirm('Esto reemplazará los datos actuales por los del archivo. ¿Continuar?')) return;
+      datos = d; guardar(); pintarTodo(); toast('DATOS IMPORTADOS');
+    } catch (err) {
+      alert('No se pudo leer el archivo. Usa un .json exportado desde esta página.');
+    }
+  };
+  r.readAsText(f);
+  e.target.value = '';
+});
+
+$('btn-print').addEventListener('click', () => window.print());
+
+$('btn-reset').addEventListener('click', () => {
+  if (!confirm('Se borrarán TUS cambios y volverán los datos de ejemplo. ¿Seguro? (Exporta antes si quieres conservar una copia.)')) return;
+  try { localStorage.removeItem(LS_KEY); } catch (e) {}
+  datos = sanear(JSON.parse(JSON.stringify(DATOS_INICIALES)));
+  $('save-state').textContent = '';
+  pintarTodo(); toast('RESTABLECIDO');
+});
+
+/* ═════════════ Inicio ═════════════ */
+crearEstructura();
+irA('equipos');
+pintarTodo();
+try { if (localStorage.getItem(LS_KEY)) $('save-state').textContent = 'Datos cargados de este navegador'; } catch (e) {}
+
+/* ═════════════ Efectos de fondo ═════════════ */
+const reducir = matchMedia('(prefers-reduced-motion: reduce)').matches;
+(function () {
+  const cv = $('rain'), ctx = cv.getContext('2d');
+  const chars = '01ABCDEF<>/|#$%&アイウエオカキクケコサシスセソ'.split('');
+  const size = 16; let w, h, drops = [], last = 0;
+  function resize() { w = cv.width = innerWidth; h = cv.height = innerHeight; drops = Array.from({ length: Math.ceil(w / size) }, () => Math.floor(Math.random() * -40)); }
+  function draw(t) {
+    requestAnimationFrame(draw);
+    if (t - last < 45) return; last = t;
+    ctx.globalCompositeOperation = 'destination-out'; ctx.fillStyle = 'rgba(0,0,0,0.12)'; ctx.fillRect(0, 0, w, h);
+    ctx.globalCompositeOperation = 'source-over'; ctx.font = size + 'px "Share Tech Mono", monospace';
+    for (let i = 0; i < drops.length; i++) {
+      const y = drops[i] * size;
+      if (y > 0) { const r = Math.random(); ctx.fillStyle = r < 0.04 ? '#ff003c' : r < 0.07 ? '#fcee0a' : '#00f0ff'; ctx.fillText(chars[Math.floor(Math.random() * chars.length)], i * size, y); }
+      if (y > h && Math.random() > 0.975) drops[i] = 0;
+      drops[i]++;
+    }
+  }
+  resize(); addEventListener('resize', resize);
+  if (!reducir) requestAnimationFrame(draw);
+})();
+(function () { const c = $('clock'); const tick = () => { c.textContent = new Date().toLocaleTimeString('es-CO', { hour12: false }); }; tick(); setInterval(tick, 1000); })();
+addEventListener('mousemove', (e) => {
+  const s = document.documentElement.style;
+  s.setProperty('--mx', ((e.clientX / innerWidth) * 2 - 1).toFixed(3));
+  s.setProperty('--my', ((e.clientY / innerHeight) * 2 - 1).toFixed(3));
+});
+const up = $('btn-up'), down = $('btn-down');
+function botones() {
+  const y = scrollY, max = document.documentElement.scrollHeight - innerHeight;
+  up.classList.toggle('hidden', y < 80);
+  down.classList.toggle('hidden', max <= 80 || y >= max - 80);
+}
+up.addEventListener('click', () => scrollTo({ top: 0, behavior: 'smooth' }));
+down.addEventListener('click', () => scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' }));
+addEventListener('scroll', botones, { passive: true });
+addEventListener('resize', botones);
+addEventListener('load', botones);
+</script>
+</body>
+</html>
