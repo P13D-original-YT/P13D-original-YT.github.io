@@ -283,6 +283,21 @@ body.lectura .solo-editor { display: none !important; }
 .lb-row { display: flex; align-items: center; gap: 16px; font-family: var(--font-mono); font-size: 12px; letter-spacing: 2px; color: var(--cyan); }
 .lb-cap { color: var(--muted); max-width: 70vw; text-align: center; }
 
+/* Ficha de detalle (conexiones, canales, configuraciones, notas) */
+#ficha { z-index: 110; }
+.modal-win.ficha-win { max-width: 760px; background: linear-gradient(135deg, var(--fc, #fcee0a), var(--red)); }
+#ficha .m-name { font-size: clamp(26px, 5vw, 40px); }
+.f-block { --c: var(--cyan); margin-top: 18px; display: flex; flex-direction: column; gap: 10px; }
+.f-title { font-family: var(--font-mono); font-size: 12px; letter-spacing: 3px; text-transform: uppercase; color: var(--c);
+  border-bottom: 1px solid color-mix(in srgb, var(--c) 40%, transparent); padding-bottom: 4px; }
+.f-block .vacio { font-family: var(--font-mono); font-size: 12px; letter-spacing: 1px; color: var(--muted); }
+.cfg { display: flex; flex-direction: column; border: 1px solid rgba(0,255,136,.3); }
+.cfg-row { display: grid; grid-template-columns: minmax(120px, 38%) 1fr; gap: 12px; padding: 7px 12px; font-family: var(--font-mono); font-size: 13px; border-bottom: 1px solid rgba(255,255,255,.07); }
+.cfg-row:nth-child(odd) { background: rgba(0,255,136,.05); }
+.cfg-row:last-child { border-bottom: none; }
+.cfg-k { color: var(--green); letter-spacing: 1px; }
+.cfg-v { color: #e6f7ff; word-break: break-word; }
+
 /* Panel de administración */
 .u-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 10px 12px; margin-bottom: 8px; background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.12); border-left: 3px solid var(--cyan); }
 .u-info { flex: 1; min-width: 160px; }
@@ -324,6 +339,7 @@ body.lectura .solo-editor { display: none !important; }
   .scroll-nav { right: 16px; bottom: 18px; }
   .modal { padding: 10px; }
   .m-body { padding: 16px 16px 20px; }
+  .cfg-row { grid-template-columns: 1fr; gap: 2px; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition-duration: .01s !important; }
@@ -437,6 +453,19 @@ body.lectura .solo-editor { display: none !important; }
         <span id="guia-title">GUÍA</span>
       </div>
       <div class="m-body" id="guia-body"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Ficha de detalle -->
+<div class="modal" id="ficha" hidden>
+  <div class="modal-win ficha-win" role="dialog" aria-modal="true" aria-labelledby="ficha-title">
+    <div class="modal-inner">
+      <div class="m-bar">
+        <button type="button" class="m-close" id="ficha-close" aria-label="Cerrar ficha">X</button>
+        <span id="ficha-title">FICHA</span>
+      </div>
+      <div class="m-body" id="ficha-body"></div>
     </div>
   </div>
 </div>
@@ -614,6 +643,7 @@ const SECCIONES = {
       { k: 'entrada', l: 'Entrada / puerto', ph: 'Ej. CH 1' },
       { k: 'cable', l: 'Tipo de cable', t: 'select', op: CABLES },
       { k: 'canal', l: 'Canal / bus', ph: 'Ej. CH 1, Aux 2, Main' },
+      { k: 'imagenes', l: 'Imágenes de esta conexión', t: 'lista', full: true, hint: HINT_IMG },
       { k: 'notas', l: 'Notas', t: 'textarea', full: true }
     ],
     cabecera: (i) => (i.origen || '?') + '  →  ' + (i.destino || '?'),
@@ -632,6 +662,7 @@ const SECCIONES = {
       { k: 'eq', l: 'Ecualizador', ph: 'Ej. Graves -2, Medios 0, Agudos +3' },
       { k: 'envios', l: 'Envíos (aux / efectos)', ph: 'Ej. Aux 1 a 50%' },
       { k: 'destino', l: 'Destino / bus', ph: 'Ej. Main L/R' },
+      { k: 'imagenes', l: 'Imágenes de este canal', t: 'lista', full: true, hint: HINT_IMG },
       { k: 'notas', l: 'Notas', t: 'textarea', full: true }
     ],
     cabecera: (i) => 'CH ' + (i.numero || '?') + ' · ' + (i.fuente || 'Sin fuente'),
@@ -644,7 +675,8 @@ const SECCIONES = {
     campos: [
       { k: 'nombre', l: 'Nombre de la configuración', req: true, full: true, ph: 'Ej. Ajustes para ensayo' },
       { k: 'equipo', l: 'Equipo al que pertenece', full: true, ph: 'Escribe el nombre exacto del equipo' },
-      { k: 'configuracion', l: 'Ajustes', t: 'textarea', full: true, mono: true, hint: 'Un ajuste por línea. Ej.: Ganancia: 12 dB' },
+      { k: 'configuracion', l: 'Ajustes', t: 'textarea', full: true, mono: true, hint: 'Un ajuste por línea, con el formato  nombre: valor.  Ej.: Ganancia: 12 dB' },
+      { k: 'imagenes', l: 'Imágenes de esta configuración', t: 'lista', full: true, hint: HINT_IMG },
       { k: 'notas', l: 'Notas', t: 'textarea', full: true }
     ],
     cabecera: (i) => i.nombre,
@@ -659,7 +691,8 @@ const SECCIONES = {
       { k: 'tipo', l: 'Tipo', t: 'select', op: ['Pendiente', 'Idea', 'Problema', 'Dato'] },
       { k: 'prioridad', l: 'Prioridad', t: 'select', op: ['Alta', 'Media', 'Baja'] },
       { k: 'estado', l: 'Estado', t: 'select', op: ['Pendiente', 'En curso', 'Hecho'] },
-      { k: 'detalle', l: 'Detalle', t: 'textarea', full: true }
+      { k: 'detalle', l: 'Detalle', t: 'textarea', full: true },
+      { k: 'imagenes', l: 'Imágenes de esta nota', t: 'lista', full: true, hint: HINT_IMG }
     ],
     cabecera: (i) => i.titulo,
     sub: (i) => [i.tipo, i.prioridad ? 'Prioridad ' + i.prioridad : ''].filter(Boolean).join(' · '),
@@ -969,7 +1002,7 @@ async function mutar(fn, mensaje) {
   const ok = await guardar();
   if (!ok) datos = JSON.parse(antes);
   pintarTodo();
-  if (guiaId) pintarGuia();
+  repintarVentanas();
   if (ok) toast(mensaje);
   return ok;
 }
@@ -997,12 +1030,14 @@ const CIERRES = {
   lightbox: () => Ventanas.cerrar('lightbox'),
   modal: () => Ventanas.cerrar('modal'),
   guia: () => cerrarGuia(),
+  ficha: () => cerrarFicha(),
   admin: () => Ventanas.cerrar('admin')
 };
-['guia', 'admin', 'modal', 'lightbox'].forEach((id) => {
+['guia', 'ficha', 'admin', 'modal', 'lightbox'].forEach((id) => {
   $(id).addEventListener('pointerdown', (e) => { if (e.target === $(id)) CIERRES[id](); });
 });
 $('guia-close').addEventListener('click', () => cerrarGuia());
+$('ficha-close').addEventListener('click', () => cerrarFicha());
 $('admin-close').addEventListener('click', () => Ventanas.cerrar('admin'));
 $('m-close').addEventListener('click', () => Ventanas.cerrar('modal'));
 $('m-cancel').addEventListener('click', () => Ventanas.cerrar('modal'));
@@ -1193,16 +1228,19 @@ function tarjeta(clave, it, i) {
   });
   if (lines.children.length) card.appendChild(lines);
 
+  // Todas las tarjetas abren su propia ventana
+  let mas = '▸ VER DETALLE';
   if (clave === 'equipos') {
     const np = (it.puertos || []).length, nc = (it.controles || []).length;
-    card.appendChild(el('div', 'item-more', '▸ VER GUÍA · ' + np + ' puerto' + (np !== 1 ? 's' : '') + ' · ' + nc + ' control' + (nc !== 1 ? 'es' : '')));
-    card.classList.add('click');
-    card.tabIndex = 0; card.setAttribute('role', 'button');
-    card.setAttribute('aria-label', 'Abrir guía de ' + it.nombre);
-    const abrir = (e) => { if (e.target.closest('.item-actions')) return; abrirGuia(it.id); };
-    card.addEventListener('click', abrir);
-    card.addEventListener('keydown', (e) => { if ((e.key === 'Enter' || e.key === ' ') && e.target === card) { e.preventDefault(); abrirGuia(it.id); } });
+    mas = '▸ VER GUÍA · ' + np + ' puerto' + (np !== 1 ? 's' : '') + ' · ' + nc + ' control' + (nc !== 1 ? 'es' : '');
   }
+  card.appendChild(el('div', 'item-more', mas));
+  card.classList.add('click');
+  card.tabIndex = 0; card.setAttribute('role', 'button');
+  card.setAttribute('aria-label', 'Abrir ' + (clave === 'equipos' ? 'guía' : 'detalle') + ' de ' + S.cabecera(it));
+  const abrir = () => { if (clave === 'equipos') abrirGuia(it.id); else abrirFicha(clave, it.id); };
+  card.addEventListener('click', (e) => { if (e.target.closest('.item-actions')) return; abrir(); });
+  card.addEventListener('keydown', (e) => { if ((e.key === 'Enter' || e.key === ' ') && e.target === card) { e.preventDefault(); abrir(); } });
 
   const acc = el('div', 'item-actions solo-editor');
   acc.appendChild(btn('✎ Editar', 'sm', () => editar(clave, it.id)));
@@ -1433,6 +1471,8 @@ function pintarGuia() {
   body.scrollTop = pos;
 }
 
+function repintarVentanas() { if (guiaId) pintarGuia(); if (fichaRef) pintarFicha(); }
+
 /* Edición de lo que está dentro del equipo */
 function camposSub(eqId, tipo) {
   const eq = buscarEq(eqId);
@@ -1453,6 +1493,133 @@ function borrarSub(eqId, tipo, itId) {
   if (!puedeEditar()) { toast('NECESITAS PERMISO DE EDITOR'); return; }
   if (!confirm('¿Eliminar este ' + SUB[tipo].singular + '?')) return;
   mutar(() => { const e = buscarEq(eqId); e[tipo] = e[tipo].filter((x) => x.id !== itId); }, 'ELIMINADO');
+}
+
+/* ════════════════════════════════════════════════════════════
+   4b) FICHA: ventana de detalle de conexiones, canales,
+       configuraciones y notas
+   ════════════════════════════════════════════════════════════ */
+let fichaRef = null;
+const eqPorNombre = (n) => (n ? datos.equipos.find((e) => norm(e.nombre) === norm(n)) : null);
+
+function abrirFicha(clave, id) {
+  fichaRef = { clave, id };
+  pintarFicha();
+  if ($('ficha').hidden) Ventanas.abrir('ficha');
+}
+function cerrarFicha() { fichaRef = null; Ventanas.cerrar('ficha'); }
+
+function enlaceEquipo(nombre) {
+  const eq = eqPorNombre(nombre);
+  if (!eq) return null;
+  const b = el('button', 'lnk', '📖 Abrir guía de ' + eq.nombre);
+  b.type = 'button';
+  b.addEventListener('click', () => { cerrarFicha(); abrirGuia(eq.id); });
+  return b;
+}
+function bloqueFicha(titulo, color, nodos) {
+  const b = el('div', 'f-block'); b.style.setProperty('--c', color);
+  b.appendChild(el('div', 'f-title', titulo));
+  nodos.filter(Boolean).forEach((n) => b.appendChild(n));
+  return b;
+}
+function miniPuerto(p) {
+  const c = el('div', 'sub-card'); c.style.setProperty('--c', '#fcee0a');
+  const h = el('div', 'sub-head'); h.appendChild(el('div', 'sub-title', p.nombre));
+  const bs = el('div', 'badges');
+  [p.tipo, p.direccion, p.senal].filter(Boolean).forEach((x) => { const b = el('span', 'badge', x); b.style.setProperty('--b', '#fcee0a'); bs.appendChild(b); });
+  h.appendChild(bs); c.appendChild(h);
+  c.appendChild(kv('Qué hace', p.descripcion));
+  c.appendChild(kv('Lo controla', p.controlPor));
+  const g = galeria(p.imagenes, p.nombre); if (g) c.appendChild(g);
+  return c;
+}
+function tablaConfig(txt) {
+  const t = el('div', 'cfg');
+  txt.split('\n').filter((l) => l.trim()).forEach((l) => {
+    const row = el('div', 'cfg-row'), i = l.indexOf(':');
+    if (i > 0) { row.appendChild(el('span', 'cfg-k', l.slice(0, i).trim())); row.appendChild(el('span', 'cfg-v', l.slice(i + 1).trim())); }
+    else { const s = el('span', 'cfg-v', l.trim()); s.style.gridColumn = '1 / -1'; row.appendChild(s); }
+    t.appendChild(row);
+  });
+  return t;
+}
+
+/* Bloques extra según el tipo de ficha (relaciones con los equipos) */
+function extrasFicha(clave, it) {
+  if (clave === 'conexiones') {
+    return [['Origen', it.origen, it.salida], ['Destino', it.destino, it.entrada]].map(([rol, nombre, puerto]) => {
+      if (!nombre) return null;
+      const eq = eqPorNombre(nombre), nodos = [];
+      if (!eq) nodos.push(el('div', 'vacio', '«' + nombre + '» no está registrado en la sección Equipos.'));
+      else {
+        nodos.push(enlaceEquipo(nombre));
+        const p = puerto && eq.puertos.find((x) => norm(x.nombre) === norm(puerto));
+        if (p) nodos.push(miniPuerto(p));
+        else if (puerto) nodos.push(el('div', 'vacio', 'El puerto «' + puerto + '» no está registrado en la guía de este equipo.'));
+      }
+      return bloqueFicha(rol + ': ' + nombre, '#fcee0a', nodos);
+    });
+  }
+  if (clave === 'canales') {
+    const rel = [['Fuente', it.fuente], ['Destino', it.destino]].map(([r, n]) => {
+      const l = enlaceEquipo(n); if (!l) return null;
+      const d = el('div', 'kv'); d.appendChild(el('b', '', r)); d.appendChild(l); return d;
+    }).filter(Boolean);
+    return rel.length ? [bloqueFicha('Equipos relacionados', '#ff003c', rel)] : [];
+  }
+  if (clave === 'paneles') {
+    const out = [], l = enlaceEquipo(it.equipo);
+    if (l) out.push(bloqueFicha('Equipo', '#00ff88', [l]));
+    if (it.configuracion) out.push(bloqueFicha('Ajustes', '#00ff88', [tablaConfig(it.configuracion)]));
+    return out;
+  }
+  return [];
+}
+
+function pintarFicha() {
+  if (!fichaRef) return;
+  const { clave, id } = fichaRef, S = SECCIONES[clave];
+  const it = datos[clave].find((x) => x.id === id);
+  if (!it) { if (!$('ficha').hidden) cerrarFicha(); else fichaRef = null; return; }
+
+  const body = $('ficha-body'), pos = body.scrollTop;
+  body.textContent = '';
+  $('ficha').style.setProperty('--fc', S.color);
+  $('ficha-title').textContent = (S.singular + ' // ' + S.cabecera(it)).toUpperCase();
+
+  // Cabecera
+  const head = el('div', 'g-head');
+  const izq = el('div'); izq.appendChild(el('h2', 'm-name', S.cabecera(it)));
+  const sub = el('div', 'g-sub');
+  const s1 = S.sub(it); if (s1) sub.appendChild(el('span', '', s1));
+  const b = S.badge(it); if (b) { const bd = el('span', 'badge', b); bd.style.setProperty('--b', colorBadge(b, S.color)); sub.appendChild(bd); }
+  izq.appendChild(sub); head.appendChild(izq);
+  const tools = el('div', 'g-tools solo-editor');
+  tools.appendChild(btn('✎ Editar', 'sm y', () => editar(clave, id)));
+  tools.appendChild(btn('🗑 Eliminar', 'sm r', () => eliminar(clave, id)));
+  head.appendChild(tools); body.appendChild(head);
+
+  // Datos cortos
+  const omitir = clave === 'paneles' ? ['configuracion'] : [];
+  const cortos = S.campos.filter((c) => (!c.t || c.t === 'text' || c.t === 'number' || c.t === 'select') && it[c.k]);
+  if (cortos.length) {
+    const facts = el('div', 'facts');
+    cortos.forEach((c) => { const f = el('div', 'fact'); f.appendChild(el('b', '', c.l)); f.append(it[c.k]); facts.appendChild(f); });
+    body.appendChild(facts);
+  }
+  // Textos largos
+  S.campos.filter((c) => c.t === 'textarea' && it[c.k] && !omitir.includes(c.k)).forEach((c) => {
+    body.appendChild(bloqueFicha(c.l, S.color, [c.mono ? el('div', 'pre', it[c.k]) : el('p', 'texto', it[c.k])]));
+  });
+  // Relaciones con los equipos
+  extrasFicha(clave, it).filter(Boolean).forEach((n) => body.appendChild(n));
+  // Imágenes
+  const g = galeria(it.imagenes, S.cabecera(it));
+  if (g) body.appendChild(bloqueFicha('Imágenes', S.color, [g]));
+
+  if (!body.querySelector('.fact, .f-block')) body.appendChild(el('div', 'vacio', 'Esta ficha todavía no tiene más información.'));
+  body.scrollTop = pos;
 }
 
 /* ════════════════════════════════════════════════════════════
@@ -1501,7 +1668,7 @@ async function despuesDeEntrar(msg) {
   sesion = await B.session();
   try { const d = await B.cargarDatos(); datos = sanear(d) || datosPorDefecto(); datosCaidos = false; detalleError = ''; }
   catch (e) { if (MODO_REMOTO) { datosCaidos = true; detalleError = explicarError(e); } }
-  pintarAuth(); pintarTodo(); if (guiaId) pintarGuia();
+  pintarAuth(); pintarTodo(); repintarVentanas();
   toast(msg);
 }
 
@@ -1536,7 +1703,7 @@ async function cerrarSesion() {
   try { await B.logout(); } catch (e) {}
   sesion = null;
   Ventanas.pila.filter((p) => p.id === 'admin').forEach(() => Ventanas.cerrar('admin'));
-  pintarAuth(); pintarTodo(); if (guiaId) pintarGuia();
+  pintarAuth(); pintarTodo(); repintarVentanas();
   toast('SESIÓN CERRADA');
 }
 
@@ -1566,7 +1733,7 @@ async function pintarAdmin() {
         sesion = await B.session();
         toast('ROL ACTUALIZADO');
       } catch (e) { toast(String(e.message).toUpperCase()); }
-      pintarAuth(); pintarTodo(); if (guiaId) pintarGuia();
+      pintarAuth(); pintarTodo(); repintarVentanas();
       if (!esAdmin()) Ventanas.cerrar('admin'); else await pintarAdmin();
     });
     row.appendChild(sel);
